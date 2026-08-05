@@ -1,0 +1,64 @@
+<!-- Nhúng thư viện Firebase phiên bản tương thích (chạy trực tiếp trên trình duyệt không cần cài đặt) -->
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
+
+<script>
+  // Cấu hình Firebase thực tế lấy từ tài khoản chequynhanh của bạn
+  const firebaseConfig = {
+    apiKey: "AIzaSyB5eeb6omvfUDujnb7NTtFam-X99jGuUpI",
+    authDomain: "chequynhanh.firebaseapp.com",
+    databaseURL: "https://chequynhanh-default-rtdb.firebaseio.com",
+    projectId: "chequynhanh",
+    storageBucket: "chequynhanh.firebasestorage.app",
+    messagingSenderId: "220203914947",
+    appId: "1:220203914947:web:0324d639d03749a051f476",
+    measurementId: "G-E6EV3YNBS3"
+  };
+
+  // Khởi tạo Firebase
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  // ==========================================
+  // 1. CHỨC NĂNG GỬI ĐƠN HÀNG (Dành cho khách gọi món trên điện thoại)
+  // Bạn chỉ cần gọi hàm này khi khách bấm nút Xác nhận đặt món
+  // Ví dụ: guiThucDon("Bàn 01", "Chè bưởi x2, Chè thái x1");
+  // ==========================================
+  function guiThucDon(soBan, danhSachMon) {
+    database.ref('orders/').push({
+      ban: soBan,
+      mon: danhSachMon,
+      thoiGian: new Date().toLocaleTimeString('vi-VN')
+    })
+    .then(() => {
+      alert("Đã gửi thực đơn đến quầy thành công!");
+    })
+    .catch((error) => {
+      console.error("Lỗi gửi đơn: ", error);
+    });
+  }
+
+  // ==========================================
+  // 2. CHỨC NĂNG TỰ ĐỘNG HIỂN THỊ ĐƠN (Dành cho Tivi Sony tại quầy)
+  // Đoạn này luôn chạy ngầm để lắng nghe dữ liệu mới liên tục
+  // ==========================================
+  database.ref('orders/').on('value', (snapshot) => {
+    const data = snapshot.val();
+    
+    // Tìm khung hiển thị đơn trên màn hình Tivi (Đảm bảo trong giao diện HTML của bạn có thẻ <div id="khung-hien-thi-tivi"></div>)
+    const manHinhTivi = document.getElementById("khung-hien-thi-tivi"); 
+    if (!manHinhTivi) return; // Nếu là giao diện của khách thì bỏ qua không chạy đoạn này
+    
+    manHinhTivi.innerHTML = ""; // Xóa danh sách cũ để cập nhật danh sách mới nhất
+    
+    // Vòng lặp lấy toàn bộ đơn hàng từ Firebase đổ ra màn hình Tivi
+    for (let id in data) {
+      manHinhTivi.innerHTML += `
+        <div style="border: 2px solid #ff9800; background-color: #fff3e0; margin: 15px; padding: 15px; border-radius: 8px; font-family: sans-serif;">
+          <h2 style="margin: 0; color: #e65100;">Vừa gọi từ: ${data[id].ban} <span style="font-size: 14px; color: #666; font-weight: normal;">(${data[id].thoiGian})</span></h2>
+          <p style="font-size: 20px; margin: 10px 0 0 0; color: #333; font-weight: bold;">Món ăn: ${data[id].mon}</p>
+        </div>
+      `;
+    }
+  });
+</script>
