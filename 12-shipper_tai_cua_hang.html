@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trạm Điều Phối Shipper - TIỆM CHÈ QUỲNH ANH</title>
+    <style>
+        :root { --kfc-red: #e4002b; --white: #ffffff; --bg-gray: #f1f3f5; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-gray); padding: 20px; }
+        header { background-color: #222; color: var(--white); padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        header h2 { color: var(--kfc-red); font-weight: 800; font-size: 20px; }
+        .shipper-login { display: flex; align-items: center; gap: 10px; }
+        .shipper-login input { padding: 8px 12px; border: 1px solid #444; background: #333; color: #fff; border-radius: 6px; outline: none; font-size: 14px; }
+        .shipper-login input:focus { border-color: var(--kfc-red); }
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media(max-width: 768px) { .grid-layout { grid-template-columns: 1fr; } }
+        .column { background: var(--white); border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 500px; }
+        .column-title { font-size: 16px; font-weight: 700; padding-bottom: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .title-waiting { color: #d39e00; }
+        .title-my-delivery { color: #28a745; }
+        .badge { background: #eee; padding: 2px 8px; border-radius: 20px; font-size: 12px; color: #555; }
+        .order-card { border: 1px solid #e9ecef; background: #f8f9fa; border-radius: 12px; padding: 15px; margin-bottom: 15px; transition: 0.2s; position: relative; }
+        .order-card:hover { border-color: #ced4da; box-shadow: 0 4px 8px rgba(0,0,0,0.03); }
+        .order-header { display: flex; justify-content: space-between; font-weight: 700; color: #333; margin-bottom: 10px; font-size: 14px; border-bottom: 1px dashed #ddd; padding-bottom: 5px; }
+        .order-id { color: var(--kfc-red); }
+        .order-time { font-size: 12px; color: #888; font-weight: normal; }
+        .customer-info-box { background: #fff; padding: 10px; border-radius: 8px; border-left: 3px solid #6c757d; margin-bottom: 10px; font-size: 13px; line-height: 1.5; }
+        .items-list { font-size: 13px; color: #444; margin-bottom: 12px; font-weight: 500; background: #fff; padding: 10px; border-radius: 8px; }
+        .order-total { font-weight: 700; color: var(--kfc-red); font-size: 15px; text-align: right; margin-bottom: 10px; }
+        .btn-action { width: 100%; border: none; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        .btn-pickup { background: #ffc107; color: #212529; }
+        .btn-pickup:hover { background: #e0a800; }
+        .btn-complete { background: #28a745; color: #fff; }
+        .btn-complete:hover { background: #218838; }
+        .empty-text { text-align: center; color: #999; font-size: 14px; padding: 4px 0; margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h2>TIỆM CHÈ QUỲNH ANH</h2>
+            <p style="font-size: 12px; color: #aaa; margin-top:2px;">Hệ thống trung tâm phân phối Shipper trực tại cửa hàng</p>
+        </div>
+        <div class="shipper-login">
+            <label style="color:#eee; font-size:13px; font-weight:600;">Tên Tài Xế / Shipper:</label>
+            <input type="text" id="txt_shipper_name" placeholder="Nhập tên của bạn..." value="Anh Sơn">
+        </div>
+    </header>
+
+    <div class="grid-layout">
+        <!-- Cột 1: Đơn hàng đang chờ Shipper nhận -->
+        <div class="column">
+            <div class="column-title title-waiting">
+                <span>📦 ĐƠN HÀNG ĐANG CHỜ SHIP GIAO</span>
+                <span class="badge" id="count_waiting">0</span>
+            </div>
+            <div id="list_waiting"></div>
+        </div>
+
+        <!-- Cột 2: Đơn hàng Shipper đang đi giao -->
+        <div class="column">
+            <div class="column-title title-my-delivery">
+                <span>🛵 ĐƠN BẠN ĐANG NHẬN GIAO</span>
+                <span class="badge" id="count_my">0</span>
+            </div>
+            <div id="list_my_delivery"></div>
+        </div>
+    </div>
+
+    <script>
+        function layTenShipper() {
+            return document.getElementById('txt_shipper_name').value.trim() || "Shipper Ẩn Danh";
+        }
+
+        function taiDonHang() {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const tenShipperHienTai = layTenShipper();
+
+            const containerWaiting = document.getElementById('list_waiting');
+            const containerMy = document.getElementById('list_my_delivery');
+
+            let htmlWaiting = '';
+            let htmlMy = '';
+
+            let countWaiting = 0;
+            let countMy = 0;
+
+            // Lọc các đơn có kiểu hình thức là SHIP
+            const shipOrders = orders.filter(o => o.type === "SHIP");
+
+            shipOrders.forEach(order => {
+                if (order.status === "PENDING") {
+                    countWaiting++;
+                    htmlWaiting += `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <span class="order-id">Mã đơn: ${order.id}</span>
+                                <span class="order-time">🕒 ${order.time}</span>
+                            </div>
+                            <div class="customer-info-box">
+                                👤 <strong>Khách:</strong> ${order.customerName}<br>
+                                📞 <strong>SĐT:</strong> ${order.phone}<br>
+                                📍 <strong>Địa chỉ:</strong> ${order.address}
+                            </div>
+                            <div class="items-list">
+                                📋 <strong>Chi tiết món:</strong><br>
+                                ${order.items.join(', ')}
+                            </div>
+                            <div class="order-total">Tổng thu hộ: ${order.total.toLocaleString('vi-VN')}đ</div>
+                            <button class="btn-action btn-pickup" onclick="nhanGiaoDon('${order.id}')">🛵 Nhận Giao Đơn Này</button>
+                        </div>
+                    `;
+                } else if (order.status === "SHIPPING" && order.shipperName === tenShipperHienTai) {
+                    countMy++;
+                    htmlMy += `
+                        <div class="order-card" style="border-color: #28a745;">
+                            <div class="order-header">
+                                <span class="order-id" style="color:#28a745;">Mã đơn: ${order.id}</span>
+                                <span class="order-time">🕒 ${order.time}</span>
+                            </div>
+                            <div class="customer-info-box" style="border-left-color: #28a745;">
+                                👤 <strong>Khách:</strong> ${order.customerName}<br>
+                                📞 <strong>SĐT:</strong> <a href="tel:${order.phone}" style="color:var(--kfc-red); font-weight:700;">${order.phone}</a> (Bấm gọi)<br>
+                                📍 <strong>Địa chỉ:</strong> ${order.address}
+                            </div>
+                            <div class="items-list">
+                                📋 <strong>Chi tiết món:</strong><br>
+                                ${order.items.join(', ')}
+                            </div>
+                            <div class="order-total">Cần thu tiền: ${order.total.toLocaleString('vi-VN')}đ</div>
+                            <button class="btn-action btn-complete" onclick="hoanThanhGiaoDon('${order.id}')">✅ Đã Giao Thành Công</button>
+                        </div>
+                    `;
+                }
+            });
+
+            document.getElementById('count_waiting').innerText = countWaiting;
+            document.getElementById('count_my').innerText = countMy;
+
+            containerWaiting.innerHTML = htmlWaiting || `<p class="empty-text">Hiện tại không có đơn hàng ship nào đang chờ</p>`;
+            containerMy.innerHTML = htmlMy || `<p class="empty-text">Bạn chưa nhận đơn ship nào. Hãy bấm nút "Nhận giao đơn này" bên cột trái.</p>`;
+        }
+
+        function nhanGiaoDon(id) {
+            let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            let idx = orders.findIndex(o => o.id === id);
+            if(idx !== -1) {
+                orders[idx].status = "SHIPPING";
+                orders[idx].shipperName = layTenShipper();
+                localStorage.setItem('orders', JSON.stringify(orders));
+                taiDonHang();
+            }
+        }
+
+        function hoanThanhGiaoDon(id) {
+            if(confirm("Xác nhận bạn đã giao món ăn thành công và đã thu đầy đủ tiền của khách hàng?")) {
+                let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                let idx = orders.findIndex(o => o.id === id);
+                if(idx !== -1) {
+                    orders[idx].status = "COMPLETED";
+                    localStorage.setItem('orders', JSON.stringify(orders));
+                    taiDonHang();
+                }
+            }
+        }
+
+        // Đồng bộ thời gian thực không cần F5 khi có tab khác tương tác đổi dữ liệu
+        window.addEventListener('storage', taiDonHang);
+        document.getElementById('txt_shipper_name').addEventListener('input', taiDonHang);
+
+        window.onload = taiDonHang;
+    </script>
+</body>
+</html>

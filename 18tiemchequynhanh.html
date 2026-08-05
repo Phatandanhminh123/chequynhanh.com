@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Gọi Món Tiệm Chè Quỳnh Anh</title>
+    <style>
+        body { font-family: Arial; text-align: center; background: #fff5f5; padding-top: 50px; }
+        input { font-size: 24px; padding: 10px; width: 250px; margin: 10px; text-align: center; }
+        button { font-size: 24px; padding: 10px 20px; background: #d63031; color: white; border: none; cursor: pointer; }
+        #Banner { background: #ffeaa7; padding: 15px; font-weight: bold; cursor: pointer; }
+        #HiểnThị { font-size: 100px; font-weight: bold; color: #d63031; margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+    <div id="Banner" onclick="MởLoa()">🔔 BẤM VÀO ĐÂY ĐỂ BẬT LOA QUÁN (CHỈ BẤM 1 LẦN) 🔔</div>
+    <h1>Tiệm Chè Quỳnh Anh</h1>
+    
+    <input type="number" id="Số" placeholder="Nhập 4 số..." autofocus>
+    <input type="text" id="Món" placeholder="Tên món ăn đã đặt...">
+    <button onclick="GọiKhách()">GỌI MÓN</button>
+
+    <div id="HiểnThị">---</div>
+
+    <script>
+        var loaCtx = null;
+        function MởLoa() {
+            loaCtx = new (window.AudioContext || window.webkitAudioContext)();
+            window.speechSynthesis.cancel();
+            document.getElementById("Banner").style.display = "none";
+            document.getElementById("Số").focus();
+        }
+        function ChuôngTingTing(callback) {
+            if (!loaCtx) loaCtx = new (window.AudioContext || window.webkitAudioContext)();
+            var o1 = loaCtx.createOscillator(), g1 = loaCtx.createGain();
+            o1.frequency.setValueAtTime(600, loaCtx.currentTime); g1.gain.setValueAtTime(0.4, loaCtx.currentTime);
+            g1.gain.exponentialRampToValueAtTime(0.001, loaCtx.currentTime + 0.3);
+            o1.connect(g1); g1.connect(loaCtx.destination); o1.start(); o1.stop(loaCtx.currentTime + 0.3);
+            setTimeout(function() {
+                var o2 = loaCtx.createOscillator(), g2 = loaCtx.createGain();
+                o2.frequency.setValueAtTime(900, loaCtx.currentTime); g2.gain.setValueAtTime(0.4, loaCtx.currentTime);
+                g2.gain.exponentialRampToValueAtTime(0.001, loaCtx.currentTime + 0.4);
+                o2.connect(g2); g2.connect(loaCtx.destination); o2.start(); o2.stop(loaCtx.currentTime + 0.4);
+            }, 200);
+            setTimeout(function() { if (callback) callback(); }, 700);
+        }
+        function GọiKhách() {
+            if (!loaCtx) MởLoa();
+            var ôSố = document.getElementById("Số"), ôMón = document.getElementById("Món");
+            var txtSố = ôSố.value.trim(), txtMón = ôMón.value.trim();
+            if (!txtSố) { alert("Chưa nhập số!"); return; }
+            if (!txtMón) txtMón = "món ăn";
+            
+            document.getElementById("HiểnThị").innerHTML = "QA" + txtSố + " - " + txtMón;
+            window.speechSynthesis.cancel();
+
+            ChuôngTingTing(function() {
+                var đọcSố = txtSố.split('').join(' ');
+                var câuNói = "Khách hàng có mã Q A " + đọcSố + " với món ăn đã đặt là " + txtMón + " vui lòng đợi nhân viên mang ra";
+                var speech = new SpeechSynthesisUtterance(câuNói);
+                speech.lang = "vi-VN"; speech.rate = 0.85;
+                var giọng = window.speechSynthesis.getVoices().find(function(v) { return v.lang.includes('vi'); });
+                if (giọng) speech.voice = giọng;
+                window.speechSynthesis.speak(speech);
+            });
+            ôSố.value = ""; ôMón.value = ""; ôSố.focus();
+        }
+        document.getElementById("Số").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") { e.preventDefault(); document.getElementById("Món").focus(); }
+        });
+        document.getElementById("Món").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") { e.preventDefault(); GọiKhách(); }
+        });
+    </script>
+</body>
+</html>

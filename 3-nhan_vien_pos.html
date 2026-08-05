@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chè Quỳnh Anh - POS Thu Ngân Đa Luồng Quét QR</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background: #fdf6f0; }
+        .pos-container { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px; }
+        .pos-box, .qr-pos-display { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .row { margin-bottom: 15px; }
+        select, input, button { width: 100%; padding: 10px; font-size: 15px; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { background: #cc0066; color: white; font-weight: bold; cursor: pointer; border: none; text-transform: uppercase; padding: 12px; }
+        .scanner-hardware-box { background: #fff1f6; border: 2px dashed #cc0066; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
+        .scanner-hardware-box input { background: #fff; text-align: center; font-weight: bold; font-size: 18px; color: #cc0066; border: 2px solid #cc0066; }
+        .status-success { color: #28a745; font-weight: bold; margin-top: 12px; display: none; }
+        .qr-wrapper { text-align: center; }
+        .qr-wrapper img { width: 220px; height: 220px; border: 1px solid #ddd; padding: 5px; border-radius: 5px; margin-top: 10px; }
+        .menu-list-pos { max-height: 220px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 8px; background: #fffdfb; }
+        .item-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; align-items: center; }
+        .item-row input { width: 65px; padding: 4px; text-align: center; }
+        .receipt-thermal-print { display: none; text-align: center; font-family: monospace; padding: 20px; background: white; width: 280px; margin: 0 auto; color: #000; }
+        @media print { .pos-container { display: none !important; } .receipt-thermal-print { display: block !important; } }
+    </style>
+</head>
+<body>
+
+<div class="pos-container">
+    <div class="pos-box">
+        <h2 style="color:#cc0066; margin-top:0; text-align:center;">MÁY THU NGÂN POS CHÈ QUỲNH ANH</h2>
+        
+        <div class="scanner-hardware-box">
+            <label style="font-weight:bold; color:#cc0066;">🔌 TRẠM SÚNG QUẾT MÃ ĐIỆN THOẠI KHÁCH HÀNG</label>
+            <input type="text" id="pos_hardware_input" placeholder="Chờ súng quét bấm TÍT..." onkeydown="xuLySungQuetTruTien(event)" autofocus>
+            <div id="scan_success_msg" class="status-success">🗣️ ĐANG PHÁT LOA THÔNG BÁO...</div>
+        </div>
+
+        <div class="row" style="background: #fff5f8; padding: 12px; border-radius: 8px;">
+            <label style="font-weight:bold; color: #cc0066;">🔢 NHẬP MÃ ĐƠN TỰ CHỌN (SỐ HOẶC CHỮ):</label>
+            <input type="text" id="pos_custom_id" placeholder="Ví dụ: 10, 25, A1, B5..." style="text-transform: uppercase;">
+        </div>
+
+        <div class="row">
+            <label style="font-weight:bold;">Vị trí bàn khách ngồi:</label>
+            <select id="p_ban">
+                <option value="Bàn 01">Bàn số 01</option><option value="Bàn 02">Bàn số 02</option>
+                <option value="Bàn 03">Bàn số 03</option><option value="Bàn 04">Bàn số 04</option>
+                <option value="Bàn 05">Bàn số 05</option><option value="Bàn 06">Bàn số 06</option>
+                <option value="Bàn 07">Bàn số 07</option><option value="Mang Về">Khách mua mang về</option>
+            </select>
+        </div>
+        
+        <div class="row"><label style="font-weight:bold;">Ghi chú món ăn:</label><input type="text" id="p_note" placeholder="Không hành, ít đường..."></div>
+
+        <label style="font-weight:bold; display:block; margin-bottom:5px;">Danh mục thực đơn chọn món:</label>
+        <div class="menu-list-pos" id="pos_items_box"></div>
+
+        <h3 style="text-align:right; color:#cc0066; margin:20px 0;">Tổng tiền hóa đơn: <span id="pos_tong_text">0</span>đ</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button onclick="nhanVienGuiDon('man_hinh')" style="background:#28a745;">1. Hiện QR Màn Hình</button>
+            <button onclick="nhanVienGuiDon('hoa_don')" style="background:#0284c7;">2. In Hoá Đơn Giấy QR</button>
+        </div>
+    </div>
+
+    <div class="qr-pos-display" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <h3 style="margin:0; color:#28a745; text-align:center;">LUỒNG 1: MÀN HÌNH QUÉT QUẦY PHỤ</h3>
+        <div id="pos_qr_info" style="font-size:16px; font-weight:bold; color:#333; text-align:center; margin-top:20px;">Chờ tạo đơn...</div>
+        <div class="qr-wrapper" id="wrap_tech"><img id="qr_tech" src="" style="display: none;"></div>
+    </div>
+</div>
+
+<div class="receipt-thermal-print">
+    <h3>TIEM AN VAT & CHE QUYNH ANH</h3>
+    <p>Hotline: 0972.806.926 | WiFi: Phamson</p>
+    <p>==============================</p>
+    <h3>HÓA ĐƠN GỌI MÓN: #<span id="p_r_id"></span></h3>
+    <p id="p_r_time"></p>
+    <p>==============================</p>
+    <div id="p_r_list" style="text-align:left;"></div>
+    <p>------------------------------</p>
+    <h3>TỔNG TIỀN: <span id="p_r_total"></span>đ</h3>
+    <p><i>Quét mã VietQR Techcombank dưới đây để trả tiền:</i></p>
+    <img id="p_r_qr" src="" style="width:170px; height:170px; margin-top:10px;">
+    <p>==============================</p>
+    <p>Nhà bếp bắt đầu làm món ngay khi bạn quét thanh toán!</p>
+</div>
+
+<script>
+    const GIA = { my_thap_cam: 40000, my_bo_sun: 40000, my_xuc_xich: 30000, che_sau: 30000, che_dua_buoi: 20000, che_thap_cam: 18000, matcha_latte: 35000, sua_tuoi_tc: 35000, ts_kem_trung: 30000, ts_vi: 25000, sinh_to: 30000, sua_chua_hq: 25000, sua_chua_da: 20000, ca_phe: 20000, tra_trai_cay: 25000, tra_chanh_nd: 15000, tra_chanh: 10000, khoai_lac: 30000, canh_ga: 28000, dui_ga: 25000, banh_trang: 25000, xuc_xich: 10000, nem_chua: 10000, pho_mai_que: 8000 };
+    const TEN = { my_thap_cam: "Mỳ thập cẩm", my_bo_sun: "Mỳ bò/sụn", my_xuc_xich: "Mỳ xúc xích", che_sau: "Chè sầu ĐB", che_dua_buoi: "Chè dừa/bưởi", che_thap_cam: "Chè thập cẩm", matcha_latte: "Matcha Latte", sua_tuoi_tc: "Sữa tươi TC", ts_kem_trung: "Trà sữa kem nướng", ts_vi: "Trà sữa khoai môn/matcha", sinh_to: "Sinh tố", sua_chua_hq: "Sữa chua hoa quả", sua_chua_da: "Sữa chua đá", ca_phe: "Cà phê", tra_trai_cay: "Trà đào/Dưa hấu", tra_chanh_nd: "Trà chanh nha đam", tra_chanh: "Trà chanh CB", khoai_lac: "Khoai tây/lang lắc", canh_ga: "Cánh gà chiên", dui_ga: "Đùi gà rán", banh_trang: "Bánh tráng trộn", xuc_xich: "Xúc xích/Lạp xưởng", nem_chua: "Nem chua/Hướng dương", pho_mai_que: "Phô mai que" };
+    
+    let currentTotal = 0, currentOrderId = "";
+    window.onload = function() {
+        let html = ''; for (let m in GIA) { html += `<div class="item-row"><span>${TEN[m]} (${GIA[m].toLocaleString()}đ)</span><input type="number" id="p_${m}" value="0" min="0" oninput="tinhTienPos()"></div>`; }
+        document.getElementById('pos_items_box').innerHTML = html;
+    };
+    document.getElementById('pos_hardware_input').addEventListener('blur', function() { setTimeout(() => this.focus(), 1000); });
+    function tinhTienPos() { currentTotal = 0; for (let m in GIA) { currentTotal += (parseInt(document.getElementById('p_' + m).value) || 0) * GIA[m]; } document.getElementById('pos_tong_text').innerText = currentTotal.toLocaleString('vi-VN'); }
+
+    function nhanVienGuiDon(luongQuet) {
+        let ban = document.getElementById('p_ban').value, note = document.getElementById('p_note').value;
+        let customIdInput = document.getElementById('pos_custom_id').value.trim().toUpperCase();
+        if(currentTotal === 0) return alert('Thu ngân chưa chọn món!');
+        currentOrderId = customIdInput !== "" ? customIdInput : "Đ" + (Math.floor(Math.random() * 800) + 100);
+
+        let list = []; for (let m in GIA) { let qty = parseInt(document.getElementById('p_' + m).value) || 0; if(qty > 0) list.push(`${TEN[m]} x${qty}`); }
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        orders.push({ id: currentOrderId, type: `POS-${ban}`, customer: `Thu ngân nhập`, detail: list.join(', '), total: currentTotal, status: 'Đang chế biến' });
+        localStorage.setItem('orders', JSON.stringify(orders));
+        
+        let urlLinkQR = `https://vietqr.io{currentTotal}&addInfo=CQANH%20POS%20${currentOrderId}`;
+
+        if(luongQuet === 'man_hinh') {
+            document.getElementById('pos_qr_info').innerHTML = `HÓA ĐƠN #${currentOrderId} (${ban})<br><span style="color:#cc0066; font-size:24px; font-weight:bold;">${currentTotal.toLocaleString()}đ</span>`;
+            document.getElementById('qr_tech').src = urlLinkQR; document.getElementById('qr_tech').style.display = 'block';
+        } else if(luongQuet === 'hoa_don') {
+   function xuLySungQuetTruTien(event) {
+    if (event.key === "Enter") {
+        let maKhachHang = document.getElementById('pos_hardware_input').value.trim(); 
+        if (maKhachHang === "") return;
+        
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        if (orders.length > 0 && currentTotal > 0) {
+            let indexDon = orders.length - 1; 
+            orders[indexDon].status = 'Mời nhận món (Kêu)'; 
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            let boDocGiaTien = new SpeechSynthesisUtterance(`Thanh toán thành công. Cửa hàng chè Quỳnh Anh đã nhận thành công ${currentTotal} đồng.`);
+            boDocGiaTien.lang = "vi-VN"; 
+            boDocGiaTien.rate = 0.95; 
+            window.speechSynthesis.speak(boDocGiaTien);
+            
+            let msgBox = document.getElementById('scan_success_msg'); 
+            msgBox.innerHTML = `✓ ĐÃ NHẬN: ${currentTotal.toLocaleString()}đ | Đã chuyển vào bếp đơn #${orders[indexDon].id}`;
+            msgBox.style.display = 'block'; 
+            
+            setTimeout(() => { 
+                msgBox.style.display = 'none'; 
+            }, 5000);
+            
+            document.getElementById('pos_qr_info').innerHTML = `<span style='color:green; font-weight:bold;'>✓ Đơn #${orders[indexDon].id} đã xử lý xong</span>`;
+            document.getElementById('qr_tech').style.display = 'none'; 
+            currentTotal = 0;
+        } else {
+            // PHÁT LOA CẤT TIẾNG ĐỌC "ERROR" CHUẨN WINDOWS 11 KHI QUÉT SAI ĐƠN
+            let boDocLoi = new SpeechSynthesisUtterance("Error! Error!"); 
+            boDocLoi.lang = "en-US"; 
+            boDocLoi.rate = 1.0; 
+            window.speechSynthesis.speak(boDocLoi);
+            
+            let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            let osc1 = audioCtx.createOscillator(); 
+            let gain1 = audioCtx.createGain(); 
+            osc1.type = 'sine'; 
+            osc1.frequency.setValueAtTime(440, audioCtx.currentTime); 
+            gain1.gain.setValueAtTime(0.5, audioCtx.currentTime); 
+            gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.18);
+            osc1.connect(gain1); gain1.connect(audioCtx.destination); 
+            osc1.start(); osc1.stop(audioCtx.currentTime + 0.18);
+            
+            setTimeout(() => {
+                let osc2 = audioCtx.createOscillator(); 
+                let gain2 = audioCtx.createGain(); 
+                osc2.type = 'sine'; 
+                osc2.frequency.setValueAtTime(293, audioCtx.currentTime); 
+                gain2.gain.setValueAtTime(0.6, audioCtx.currentTime); 
+                gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                osc2.connect(gain2); gain2.connect(audioCtx.destination); 
+                osc2.start(); osc2.stop(audioCtx.currentTime + 0.25);
+            }, 120);
+            
+            alert("Error! Chưa có số tiền đơn hàng nào được tạo lập trên máy POS để trừ tiền!");
+        }
+        document.getElementById('pos_hardware_input').value = "";
+    }
+}
+         document.getElementById('p_r_id').innerText = currentOrderId; document.getElementById('p_r_time').innerText = new Date().toLocaleString('vi-VN'); document.getElementById('p_r_list').innerHTML = list.join('<br>'); document.getElementById('p_r_total').innerText = currentTotal.toLocaleString(); document.getElementById('p_r_qr').src = urlLinkQR;

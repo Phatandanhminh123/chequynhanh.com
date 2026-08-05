@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quầy Nhập Liệu - Tiệm Chè Quỳnh Anh</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #fff5f5; padding-top: 50px; }
+        .panel { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 2px solid #d63031; }
+        input, select { font-size: 20px; padding: 10px; border: 2px solid #ddd; border-radius: 5px; outline: none; margin: 10px; width: 200px; }
+        #Mon { width: 250px; }
+        button { font-size: 20px; padding: 10px 25px; background: #d63031; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #b32424; }
+    </style>
+</head>
+<body>
+
+    <h1>BÀN NHẬP LIỆU NHÂN VIÊN</h1>
+    <div class="panel">
+        <input type="number" id="So" placeholder="Nhập số đơn..." autofocus>
+        
+        <select id="ThanhToan" onchange="ThayDoiHinhThuc()">
+            <option value="Techcombank QR">Techcombank QR</option>
+            <option value="Tiền mặt">Tiền mặt</option>
+        </select>
+
+        <!-- Ô gõ số tiền trực tiếp tại quầy -->
+        <input type="number" id="SoTien" placeholder="Số tiền (VND)..." value="25000">
+
+        <input type="text" id="Mon" placeholder="Tên món ăn đã xong...">
+        <button onclick="GuiLenhGoi()">MÓN ĐÃ XONG</button>
+    </div>
+
+    <script>
+        var kenhTruyen = new BroadcastChannel('kenh_goi_mon_quynhanh');
+
+        function ThayDoiHinhThuc() {
+            var ptt = document.getElementById("ThanhToan").value;
+            var oTien = document.getElementById("SoTien");
+            if (ptt === "Tiền mặt") {
+                oTien.style.display = "none";
+                oTien.value = "0";
+            } else {
+                oTien.style.display = "inline-block";
+                oTien.value = "25000"; // Số tiền gợi ý mặc định
+            }
+        }
+
+        function GuiLenhGoi() {
+            var oSo = document.getElementById("So"), oMon = document.getElementById("Mon"), oPtt = document.getElementById("ThanhToan"), oTien = document.getElementById("SoTien");
+            var txtSo = oSo.value.trim(), txtMon = oMon.value.trim(), txtPtt = oPtt.value, txtTien = oTien.value.trim();
+            
+            if (!txtSo) { alert("Chưa nhập số đơn!"); return; }
+            if (txtPtt === "Techcombank QR" && (!txtTien || txtTien === "0")) { alert("Vui lòng nhập số tiền!"); return; }
+            if (!txtMon) txtMon = "món chè";
+
+            // Truyền tất cả dữ liệu sang màn hình hiển thị TV
+            kenhTruyen.postMessage({ so: txtSo, mon: txtMon, ptt: txtPtt, tien: txtTien });
+
+            oSo.value = ""; oMon.value = ""; oSo.focus();
+            ThayDoiHinhThuc();
+        }
+
+        // Tự động nhảy ô thông minh bằng phím Enter thương mại
+        document.getElementById("So").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") { e.preventDefault(); document.getElementById("ThanhToan").focus(); }
+        });
+        document.getElementById("ThanhToan").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") { 
+                e.preventDefault(); 
+                var ptt = document.getElementById("ThanhToan").value;
+                if(ptt === "Tiền mặt") document.getElementById("Mon").focus();
+                else document.getElementById("SoTien").focus();
+            }
+        });
+        document.getElementById("SoTien").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") { e.preventDefault(); document.getElementById("Mon").focus(); }
+        });
+        document.getElementById("Mon").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") { e.preventDefault(); GuiLenhGoi(); }
+        });
+    </script>
+</body>
+</html>

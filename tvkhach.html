@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Tiệm Chè Quỳnh Anh</title>
+    <style>
+        body { font-family: Arial; text-align: center; background: #fff5f5; margin: 0; padding-top: 20px; }
+        #Banner { background: #ffeaa7; color: #d63031; padding: 12px; font-weight: bold; cursor: pointer; }
+        input, select, button { font-size: 18px; padding: 8px; margin: 5px; width: 200px; text-align: center; }
+        button { background: #d63031; color: white; border: none; font-weight: bold; cursor: pointer; }
+        .box { background: linear-gradient(135deg, #e17055, #d63031); border-radius: 10px; padding: 15px; color: white; width: 450px; margin: 15px auto; }
+        #HienThiSo { font-size: 60px; font-weight: bold; font-family: monospace; }
+        #HienThiMon { font-size: 20px; background: rgba(0,0,0,0.15); padding: 4px 12px; border-radius: 12px; display: inline-block; }
+        #QrArea { display: none; margin: 10px auto; width: 160px; background: white; padding: 10px; border-radius: 8px; }
+        #QrDong { width: 140px; height: 160px; }
+        .util { font-size: 13px; color: #444; background: #fff; padding: 8px; width: 450px; margin: 10px auto; border-left: 5px solid #2ecc71; text-align: left; }
+        .history { background: white; border-radius: 10px; padding: 10px; width: 450px; margin: 10px auto; text-align: left; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .item { display: flex; justify-content: space-between; padding: 6px; background: #fff5f5; margin-bottom: 4px; border-left: 4px solid #d63031; }
+    </style>
+</head>
+<body>
+
+    <div id="Banner" onclick="MoLoa()">🔔 BẤM VÀO ĐÂY ĐỂ BẬT LOA GỌI MÓN (CHỈ BẤM 1 LẦN) 🔔</div>
+    <h2 style="color:#d63031; margin:10px 0;">Tiệm Chè Quỳnh Anh</h2>
+    
+    <!-- KHU VỰC NHẬP LIỆU -->
+    <input type="number" id="So" placeholder="Số đơn..." autofocus>
+    <select id="ThanhToan" onchange="ThayDoiPT()">
+        <option value="Techcombank QR">Techcombank QR</option>
+        <option value="Tiền mặt">Tiền mặt</option>
+    </select>
+    <input type="number" id="SoTien" placeholder="Số tiền..." value="">
+    <input type="text" id="Mon" placeholder="Tên món ăn...">
+    <button onclick="GoiMon()">GỌI KHÁCH</button>
+
+    <!-- KHU VỰC TV HIỂN THỊ -->
+    <div class="box">
+        <div id="HienThiSo">---</div>
+        <div id="HienThiMon">Chờ đơn...</div>
+        <div id="HienThiPtt" style="color:#ffeaa7; font-weight:bold; font-size:15px; margin-top:5px;">Hình thức: ---</div>
+    </div>
+    
+    <div class="QrArea" id="QrArea">
+        <img id="QrDong" src="" alt="QR">
+        <div style="font-size:11px; font-weight:bold; margin-top:3px; color:#333;">STK: 19036599630010</div>
+    </div>
+
+    <div class="util">
+        📶 Wifi: <b>VIETTEL_Pham Son</b> | 🔑 Mk: <b>19111989</b> | 📞 Ship: <b>0972.806.926</b>
+    </div>
+
+    <div class="history">
+        <h5 style="margin:0 0 5px 0; color:#d63031; text-align:center; border-bottom:1px solid #ddd;">10 MÃ GẦN NHẤT</h5>
+        <ul id="LichSu" style="list-style:none; padding:0; margin:0;">
+            <li style="color:#aaa; text-align:center; font-size:13px;">Chưa có lịch sử</li>
+        </ul>
+    </div>
+
+    <script>
+        var callHistory = [], audioCtx = null;
+        if ('speechSynthesis' in window) { window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); }; }
+
+        function MoLoa() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+            document.getElementById("Banner").style.display = "none";
+            document.getElementById("So").focus();
+        }
+
+        function ThayDoiPT() {
+            var pt = document.getElementById("ThanhToan").value;
+            document.getElementById("SoTien").style.display = (pt === "Tiền mặt") ? "none" : "inline-block";
+            document.getElementById("SoTien").value = (pt === "Tiền mặt") ? "0" : "25000";
+        }
+
+        function DocTien(so) {
+            var n = parseInt(so); if (isNaN(n) || n === 0) return "";
+            if (n === 25000) return "hai mươi lăm nghìn"; if (n === 30000) return "ba mươi nghìn";
+            if (n === 35000) return "ba mươi lăm nghìn"; if (n === 50000) return "năm mươi nghìn";
+            return so.split('').join(' ');
+        }
+
+        function Chuông(callback) {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            var o1 = audioCtx.createOscillator(), g1 = audioCtx.createGain();
+            o1.frequency.setValueAtTime(600, audioCtx.currentTime); g1.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            g1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            o1.connect(g1); g1.connect(audioCtx.destination); o1.start(); o1.stop(audioCtx.currentTime + 0.3);
+            setTimeout(function() {
+                var o2 = audioCtx.createOscillator(), g2 = audioCtx.createGain();
+                o2.frequency.setValueAtTime(900, audioCtx.currentTime); g2.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                g2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                o2.connect(g2); g2.connect(audioCtx.destination); o2.start(); o2.stop(audioCtx.currentTime + 0.4);
+            }, 200);
+            setTimeout(function() { if (callback) callback(); }, 700);
+        }
+
+        function GoiMon() {
+            if (!audioCtx) MoLoa();
+            var oSo = document.getElementById("So"), oMon = document.getElementById("Mon"), oPt = document.getElementById("ThanhToan"), oTien = document.getElementById("SoTien");
+            var txtSo = oSo.value.trim(), txtMon = oMon.value.trim(), txtPt = oPt.value, txtTien = oTien.value.trim();
+            
+            if (!txtSo) { alert("Chưa nhập số!"); return; }
+            if (!txtMon) txtMon = "món chè";
+            var maFull = "QA" + txtSo;
+
+            document.getElementById("HienThiSo").innerHTML = maFull;
+            document.getElementById("HienThiMon").innerHTML = txtMon;
+            
+            if (txtPt === "Techcombank QR") {
+                var formatTien = parseInt(txtTien).toLocaleString('vi-VN') + "đ";
+                document.getElementById("HienThiPtt").innerHTML = "Hình thức: " + txtPt + " (" + formatTien + ")";
+                document.getElementById("QrDong").src = "https://vietqr.io" + txtTien + "&addInfo=" + encodeURIComponent("Thanh toan " + maFull) + "&accountName=DEN A QUYNH ANH LOP CO SON";
+                document.getElementById("QrArea").style.display = "block";
+            } else {
+                document.getElementById("HienThiPtt").innerHTML = "Hình thức: Tiền mặt";
+                document.getElementById("QrArea").style.display = "none";
+            }
+
+            var nhanLs = (txtPt === "Techcombank QR") ? "QR " + parseInt(txtTien).toLocaleString('vi-VN') + "đ" : "Tiền mặt";
+            callHistory.unshift({ code: maFull, dish: txtMon, ptt: nhanLs });
+            if (callHistory.length > 10) callHistory.pop();
+            
+            var listContainer = document.getElementById("LichSu"); listContainer.innerHTML = "";
+            callHistory.forEach(function(item) {
+                var li = document.createElement("li"); li.className = "item";
+                li.innerHTML = "<div><span style='font-weight:bold;color:#d63031;'>" + item.code + "</span> <span>[" + item.ptt + "]</span></div><span style='color:#555;font-style:italic;'>" + item.dish + "</span>";
+                listContainer.appendChild(li);
+            });
+
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+            Chuông(function() {
+                if ('speechSynthesis' in window) {
+                    var docSo = txtSo.split('').join(' ');
+                    var cauNoi = (txtPt === "Techcombank QR") ? 
+                        "Khách hàng có mã Q A " + docSo + " thanh toán bằng chuyển khoản Techcombank qua mã Q R số tiền " + DocTien(txtTien) + " đồng với món ăn đã đặt là " + txtMon + " vui lòng đợi nhân viên mang ra" :
+                        "Khách hàng có mã Q A " + docSo + " thanh toán bằng Tiền mặt với món ăn đã đặt là " + txtMon + " vui lòng đợi nhân viên mang ra";
+                    
+                    var speech = new SpeechSynthesisUtterance(cauNoi); speech.lang = "vi-VN"; speech.rate = 0.85;
+                    var giong = window.speechSynthesis.getVoices().find(function(v) { return v.lang.includes('vi'); });
+                    if (giong) speech.voice = giong;
+                    window.speechSynthesis.speak(speech);
+                }
+            });
+            oSo.value = ""; oMon.value = ""; oSo.focus(); ThayDoiPT();
+        }
+
+        // BỘ NHẢY Ô LIÊN TỤC CHUẨN XÁC XUỐNG DÒNG 100%
+        document.getElementById("So").addEventListener("keydown", function(e) { if (e.key === "Enter") { e.preventDefault(); document.getElementById("ThanhToan").focus(); } });
+        document.getElementById("ThanhToan").addEventListener("keydown", function(e) { if (e.key === "Enter") { e.preventDefault(); if(document.getElementById("ThanhToan").value === "Tiền mặt") document.getElementById("Mon").focus(); else document.getElementById("SoTien").focus(); } });
+        document.getElementById("SoTien").addEventListener("keydown", function(e) { if (e.key === "Enter") { e.preventDefault(); document.getElementById("Mon").focus(); } });
+        document.getElementById("Mon").addEventListener("keydown", function(e) { if (e.key === "Enter") { e.preventDefault(); GoiMon(); } });
+    </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chè Quỳnh Anh - Bếp & Quản Lý Tổng</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f6f9; }
+        .boss-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 8px solid #28a745; margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
+        th { background: #cc0066; color: white; }
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; color: white; }
+        .st-pending { background: orange; }
+        .act-btn { background: #333; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="boss-card">
+    <h2 style="margin:0; color:#28a745;">TIỆM CHÈ QUỲNH ANH - THỐNG KÊ DOANH THU</h2>
+    <p style="font-size:24px; margin:10px 0; font-weight:bold;">Doanh thu tổng: <span style="color:green;" id="doanh_thu">0</span> VNĐ</p>
+    <button onclick="if(confirm('Xóa dữ liệu ngày cũ?')) { localStorage.setItem('orders','[]'); taiDuLieu(); }" style="background:#dc3545; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">Reset Dữ Liệu</button>
+</div>
+<h3>DANH SÁCH ĐƠN HÀNG HỆ THỐNG TRONG NGÀY</h3>
+<table>
+    <thead>
+        <tr><th>Mã Số</th><th>Vị Trí</th><th>Khách Hàng/ POS</th><th>Chi Tiết Mặt Hàng Gọi Món</th><th>Thành Tiền</th><th>Trạng thái</th><th>Hành Động Đầu Bếp</th></tr>
+    </thead>
+    <tbody id="db_body"></tbody>
+</table>
+<script>
+    function taiDuLieu() {
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]'); let tbody = document.getElementById('db_body'); tbody.innerHTML = ''; let tongDoanhThu = 0;
+        orders.forEach((o, i) => {
+            tongDoanhThu += o.total; let classTrangThai = o.status === 'Đang chế biến' ? 'st-pending' : 'st-ready';
+            tbody.innerHTML += `<tr><td><b>#${o.id}</b></td><td><span style="color:#cc0066; font-weight:bold;">${o.type}</span></td><td>${o.customer}</td><td>${o.detail}</td><td><b>${o.total.toLocaleString()}đ</b></td><td><span class="badge ${classTrangThai}">${o.status}</span></td><td>${o.status === 'Đang chế biến' ? `<button class="act-btn" style="background:orange;" onclick="duyetDon(${i})">Xong & Báo Kêu</button>` : '<b style="color:green;">✓ Đã phục vụ</b>'}</td></tr>`;
+        }); document.getElementById('doanh_thu').innerText = tongDoanhThu.toLocaleString('vi-VN');
+    }
+    function duyetDon(index) { let orders = JSON.parse(localStorage.getItem('orders')); orders[index].status = 'Mời nhận món (Kêu)'; localStorage.setItem('orders', JSON.stringify(orders)); taiDuLieu(); }
+    setInterval(taiDuLieu, 1500); window.onload = taiDuLieu;
+</script>
+</body>
+</html>

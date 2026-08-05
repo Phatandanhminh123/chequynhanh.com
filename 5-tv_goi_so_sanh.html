@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chè Quỳnh Anh - Tivi Gọi Số Tự Động</title>
+    <style>
+        body { background: #111; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
+        .col { background: #222; padding: 20px; border-radius: 12px; border: 2px solid #333; min-height: 450px; }
+        .num-list { font-size: 65px; font-weight: bold; color: #ffc107; list-style: none; padding: 0; margin: 0; }
+        .ready-list { color: #28a745; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <h1 style="font-size:38px; color:#cc0066; margin:10px 0 5px 0;">TIỆM CHÈ QUỲNH ANH - XIN MỜI NHẬN MÓN</h1>
+    <p style="color:#aaa; font-size:16px;">🔊 Loa tự động gọi khi món xong | Click chuột 1 lần vào màn hình này để kích hoạt âm thanh</p>
+    <div class="grid">
+        <div class="col"><h2 style="color:#ffc107; border-bottom:2px solid #333; padding-bottom:10px;">ĐANG CHẾ BIẾN</h2><ul class="num-list" id="tv_cooking"></ul></div>
+        <div class="col"><h2 style="color:#28a745; border-bottom:2px solid #333; padding-bottom:10px;">MỜI LẤY ĐỒ ĂN (CHƯA NHẬN MÓN)</h2><ul class="num-list ready-list" id="tv_ready"></ul></div>
+    </div>
+<script>
+    let danhSachDaGoiLoa = [];
+    function capNhatTivi() {
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]'); let cookHtml = '', readyHtml = '';
+        orders.forEach(o => {
+            if(o.status === 'Đang chế biến') { cookHtml += `<li>#${o.id}</li>`; }
+            else if(o.status === 'Mời nhận món (Kêu)') {
+                readyHtml += `<li>#${o.id} 🔔</li>`; 
+                if(!danhSachDaGoiLoa.includes(o.id)) { danhSachDaGoiLoa.push(o.id); phatLoaGoiMon(o.id); } 
+            }
+        }); document.getElementById('tv_cooking').innerHTML = cookHtml; document.getElementById('tv_ready').innerHTML = readyHtml;
+    }
+    function phatLoaGoiMon(id) {
+        let boDoc = new SpeechSynthesisUtterance(`Xin mời khách hàng có số hóa đơn ${id}, đến quầy đưa hóa đơn xác nhận để nhận đồ ăn uống.`);
+        boDoc.lang = "vi-VN"; boDoc.rate = 0.9; window.speechSynthesis.speak(boDoc);
+    }
+    window.addEventListener('storage', function(e) { if (e.key === 'orders') { capNhatTivi(); } });
+    setInterval(capNhatTivi, 2000); window.onload = capNhatTivi;
+</script>
+</body>
+</html>

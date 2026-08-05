@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Hàng Giao Tận Nơi - TIỆM CHÈ QUỲNH ANH</title>
+    <style>
+        :root { --kfc-red: #e4002b; --white: #ffffff; --bg-gray: #f8f9fa; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-gray); padding-bottom: 80px; }
+        header { background-color: var(--kfc-red); color: var(--white); padding: 20px; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        header h1 { font-size: 24px; font-weight: 800; text-transform: uppercase; }
+        header p { font-size: 14px; margin-top: 5px; opacity: 0.9; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        @media(max-width: 768px) { .container { grid-template-columns: 1fr; } }
+        .form-section, .menu-section, .cart-section { background: var(--white); padding: 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .section-title { font-size: 18px; color: var(--kfc-red); border-left: 5px solid var(--kfc-red); padding-left: 10px; margin-bottom: 15px; font-weight: 700; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; font-size: 14px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--kfc-red); box-shadow: 0 0 5px rgba(228,0,43,0.2); }
+        .menu-category { margin-bottom: 25px; }
+        .category-name { font-size: 16px; font-weight: 700; background: #fff5f5; color: var(--kfc-red); padding: 8px 12px; border-radius: 6px; margin-bottom: 15px; }
+        .grid-products { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+        .product-card { background: var(--white); border: 1px solid #eee; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; transition: 0.3s; }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+        .product-img { width: 100%; height: 140px; object-fit: cover; }
+        .product-info { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .product-name { font-size: 14px; font-weight: 700; color: #222; margin-bottom: 5px; }
+        .product-price { font-size: 15px; font-weight: 700; color: var(--kfc-red); margin-bottom: 10px; }
+        .btn-add { background-color: var(--kfc-red); color: var(--white); border: none; padding: 8px; width: 100%; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 13px; }
+        .btn-add:hover { opacity: 0.9; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
+        .cart-item-name { font-weight: 600; color: #333; }
+        .cart-qty { display: flex; align-items: center; gap: 8px; }
+        .btn-qty { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ccc; background: #fff; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .total-box { margin-top: 20px; padding-top: 15px; border-top: 2px solid #eee; display: flex; justify-content: space-between; font-weight: 800; font-size: 18px; color: #222; }
+        .btn-checkout { background-color: #28a745; color: var(--white); border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; margin-top: 15px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(40,167,69,0.3); transition: 0.2s; }
+        .btn-checkout:hover { opacity: 0.9; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
+        .modal-content { background: #fff; padding: 25px; border-radius: 16px; max-width: 450px; width: 100%; text-align: center; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: scaleUp 0.3s ease; }
+        @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .qr-img { width: 250px; height: 250px; margin: 15px auto; display: block; border: 1px solid #eee; padding: 5px; border-radius: 10px; }
+        .btn-close { background: #6c757d; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 15px; cursor: pointer; font-weight: 600; }
+        .info-bar { background: #fff; border: 1px dashed var(--kfc-red); padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; color: #555; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>TIỆM CHÈ QUỲNH ANH</h1>
+        <p>Hotline & Gọi Ship: 0972.806.926 | WiFi: Phamson (MK: 19111989)</p>
+    </header>
+
+    <div class="container">
+        <div>
+            <div class="form-section">
+                <div class="section-title">THÔNG TIN KHÁCH HÀNG ĐẶT SHIP</div>
+                <div class="form-group">
+                    <label for="txt_hoten">Họ và Tên người nhận (*)</label>
+                    <input type="text" id="txt_hoten" placeholder="Nhập họ và tên đầy đủ..." required>
+                </div>
+                <div class="form-group">
+                    <label for="txt_sdt">Số điện thoại (*)</label>
+                    <input type="tel" id="txt_sdt" placeholder="Nhập số điện thoại chính xác..." required>
+                </div>
+                <div class="form-group">
+                    <label for="txt_diachi">Địa chỉ giao hàng tận nơi (*)</label>
+                    <textarea id="txt_diachi" rows="3" placeholder="Ghi rõ số nhà, tên đường, thôn/xóm, phường/xã..." required></textarea>
+                </div>
+            </div>
+
+            <div class="menu-section">
+                <div class="section-title">DANH MỤC THỰC ĐƠN TRÀN VIỀN TƯƠI NGON</div>
+                <div id="menu_container"></div>
+            </div>
+        </div>
+
+        <div>
+            <div class="cart-section" style="position: sticky; top: 20px;">
+                <div class="section-title">GIỎ HÀNG CỦA BẠN</div>
+                <div id="cart_list">
+                    <p style="color: #888; text-align: center; padding: 20px 0;">Chưa có món nào được chọn</p>
+                </div>
+                <div class="total-box">
+                    <span>TỔNG TIỀN:</span>
+                    <span id="lbl_tongtien">0đ</span>
+                </div>
+                <button class="btn-checkout" onclick="xuLyDatDonShip()">🚀 ĐẶT ĐƠN GIAO TẬN NƠI</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="qr_modal" class="modal">
+        <div class="modal-content">
+            <h3 style="color: #28a745;">🎉 ĐẶT ĐƠN SHIP THÀNH CÔNG!</h3>
+            <p style="font-size: 13px; color: #555; margin-top: 5px;">Hệ thống đã gửi đơn tới Shipper tại cửa hàng</p>
+            <div class="info-bar" style="margin-top: 15px; text-align: left;">
+                <strong>Mã đơn:</strong> <span id="md_id" style="color: var(--kfc-red); font-weight:700;"></span><br>
+                <strong>Người nhận:</strong> <span id="md_ten"></span><br>
+                <strong>Số ĐT:</strong> <span id="md_sdt"></span><br>
+                <strong>Địa chỉ:</strong> <span id="md_dc"></span>
+            </div>
+            <p style="font-weight: 600; font-size: 14px; margin-bottom: 5px;">Quét mã VietQR chuyển khoản tự động:</p>
+            <img id="img_vietqr" class="qr-img" src="" alt="VietQR Techcombank">
+            <p style="font-size: 12px; color: #666;">Chủ TK: Đến A Quỳnh Anh lớp 4 cô son<br>STK: 19036599630010 (Techcombank)</p>
+            <button class="btn-close" onclick="dongModal()">Đóng & Tiếp tục</button>
+        </div>
+    </div>
+
+    <script>
+        
+const MENU = {
+    "MỲ CAY": [
+        { name: "Mỳ cay thập cẩm", price: 40000, img: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500" },
+        { name: "Mỳ bò", price: 40000, img: "https://images.unsplash.com/photo-1547928576-a4a3323dce9d?w=500" },
+        { name: "Mỳ sụn", price: 40000, img: "https://images.unsplash.com/photo-1623341214825-9f4f97120187?w=500" },
+        { name: "Mỳ bắp", price: 40000, img: "https://images.unsplash.com/photo-1552611052-33e04de081de?w=500" },
+        { name: "Mỳ cay xúc xích", price: 30000, img: "https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=500" }
+    ],
+    "CÁC MÓN CHÈ ĐẶC SẢN": [
+        { name: "Chè sầu đặc biệt", price: 30000, img: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=500" },
+        { name: "Chè dừa non", price: 20000, img: "https://images.unsplash.com/photo-1551024601-bec78aea704b?w=500" },
+        { name: "Chè bưởi", price: 20000, img: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?w=500" },
+        { name: "Chè thập cẩm", price: 18000, img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500" }
+    ],
+    "DANH MỤC TRÀ SỮA HOT": [
+        { name: "Matcha latte Xoài", price: 35000, img: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=500" },
+        { name: "Matcha latte Dâu", price: 35000, img: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500" },
+        { name: "Matcha latte Việt quất", price: 35000, img: "https://images.unsplash.com/photo-1553909489-cd47e0907980?w=500" },
+        { name: "Sữa tươi trân châu đường đen", price: 35000, img: "https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=500" },
+        { name: "Trà sữa trứng đùa nướng", price: 30000, img: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500" },
+        { name: "Trà sữa Kem trứng", price: 30000, img: "https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=500" },
+        { name: "Trà sữa dâu", price: 20000, img: "https://images.unsplash.com/photo-1517093602195-b40af9688b46?w=500" },
+        { name: "Trà sữa Việt quất", price: 20000, img: "https://images.unsplash.com/photo-1497515114629-f71d768fd07c?w=500" },
+        { name: "Trà sữa Khoai môn", price: 25000, img: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=500" },
+        { name: "Trà sữa Socola", price: 25000, img: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=500" },
+        { name: "Trà sữa Matcha", price: 25000, img: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=500" }
+    ],
+    "SINH TỐ & SỮA CHUA TƯƠI": [
+        { name: "Sinh tố Xoài", price: 30000, img: "https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=500" },
+        { name: "Sinh tố Bơ", price: 30000, img: "https://images.unsplash.com/photo-1525385133336-2548471436b7?w=500" },
+        { name: "Sinh tố Bắp", price: 30000, img: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=500" },
+        { name: "Sinh tố Dâu", price: 30000, img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500" },
+        { name: "Sữa chua Hoa quả", price: 25000, img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500" },
+        { name: "Sữa chua Mít", price: 25000, img: "https://images.unsplash.com/photo-1505252585461-04db1ebb846d?w=500" },
+        { name: "Sữa chua Xoài", price: 25000, img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500" },
+        { name: "Sữa chua Đánh đá", price: 20000, img: "https://images.unsplash.com/photo-1560155016-bd4879ae8f21?w=500" },
+        { name: "Sữa chua Matcha", price: 20000, img: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=500" },
+        { name: "Sữa chua Việt quất", price: 20000, img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500" }
+    ],
+    "TRÀ & CÀ PHÊ ĐẬM VỊ": [
+        { name: "Cà phê muối", price: 20000, img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500" },
+        { name: "Cà phê Đen đá", price: 20000, img: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500" },
+        { name: "Bạc xỉu", price: 20000, img: "https://images.unsplash.com/photo-1570968915860-54d5c301fc9f?w=500" },
+        { name: "Cà phê Nâu đá", price: 20000, img: "https://images.unsplash.com/photo-1461023246033-0ccb249b6b7a?w=500" },
+        { name: "Trà đào", price: 25000, img: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500" },
+        { name: "Trà đào cam sả", price: 25000, img: "https://images.unsplash.com/photo-1556816214-da16b55a4159?w=500" },
+        { name: "Ép dưa hấu", price: 25000, img: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=500" },
+        { name: "Trà chanh nha đam", price: 15000, img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500" },
+        { name: "Trà chanh truyền thống", price: 10000, img: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=500" }
+    ],
+    "ĐỒ ĂN VẶT CHIÊN GIÒN": [
+        { name: "Khoai tây lắc phô mai", price: 30000, img: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500" },
+        { name: "Khoai lang kén", price: 30000, img: "https://images.unsplash.com/photo-1518013041695-1cffcf511e40?w=500" },
+        { name: "Cánh gà chiên nước mắm (chiếc)", price: 28000, img: "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=500" },
+        { name: "Đùi gà rán giòn cay (chiếc)", price: 25000, img: "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?w=500" },
+        { name: "Bánh tráng trộn", price: 25000, img: "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=500" },
+        { name: "Bánh tráng cuộn", price: 25000, img: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500" },
+        { name: "Xúc xích (chiếc)", price: 10000, img: "https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=500" },
+        { name: "Lạp xưởng (chiếc)", price: 10000, img: "https://images.unsplash.com/photo-1585325701165-351af916e5ec?w=500" },
+        { name: "Nem chua rán", price: 10000, img: "https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=500" },
+        { name: "Hướng dương (gói)", price: 10000, img: "https://images.unsplash.com/photo-1596436889106-be35e843f974?w=500" },
+        { name: "Phô mai que (chiếc)", price: 8000, img: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500" }
+    ]
+};
+
+
+        let gioHang = {};
+
+        function initMenu() {
+            const container = document.getElementById('menu_container');
+            let html = '';
+            for(let category in MENU) {
+                html += `
+                    <div class="menu-category">
+                        <div class="category-name">${category}</div>
+                        <div class="grid-products">
+                `;
+                MENU[category].forEach(item => {
+                    html += `
+                        <div class="product-card">
+                            <img class="product-img" src="${item.img}" alt="${item.name}">
+                            <div class="product-info">
+                                <div>
+                                    <div class="product-name">${item.name}</div>
+                                    <div class="product-price">${item.price.toLocaleString('vi-VN')}đ</div>
+                                </div>
+                                <button class="btn-add" onclick="themVaoGio('${item.name}', ${item.price})">➕ Thêm món</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function themVaoGio(name, price) {
+            if(gioHang[name]) {
+                gioHang[name].qty += 1;
+            } else {
+                gioHang[name] = { price: price, qty: 1 };
+            }
+            renderGioHang();
+        }
+
+        function doiSoLuong(name, delta) {
+            if(gioHang[name]) {
+                gioHang[name].qty += delta;
+                if(gioHang[name].qty <= 0) {
+                    delete gioHang[name];
+                }
+                renderGioHang();
+            }
+        }
+
+        function renderGioHang() {
+            const list = document.getElementById('cart_list');
+            let html = '';
+            let tong = 0;
+            let keys = Object.keys(gioHang);
+            
+            if(keys.length === 0) {
+                list.innerHTML = `<p style="color: #888; text-align: center; padding: 20px 0;">Chưa có món nào được chọn</p>`;
+                document.getElementById('lbl_tongtien').innerText = '0đ';
+                return;
+            }
+
+            keys.forEach(name => {
+                let item = gioHang[name];
+                let subtotal = item.price * item.qty;
+                tong += subtotal;
+                html += `
+                    <div class="cart-item">
+                        <div>
+                            <div class="cart-item-name">${name}</div>
+                            <div style="font-size:12px; color:#777;">${item.price.toLocaleString('vi-VN')}đ</div>
+                        </div>
+                        <div class="cart-qty">
+                            <button class="btn-qty" onclick="doiSoLuong('${name}', -1)">-</button>
+                            <span style="font-weight:700; width:20px; text-align:center;">${item.qty}</span>
+                            <button class="btn-qty" onclick="doiSoLuong('${name}', 1)">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+            document.getElementById('lbl_tongtien').innerText = tong.toLocaleString('vi-VN') + 'đ';
+        }
+
+        function xuLyDatDonShip() {
+            const hoTen = document.getElementById('txt_hoten').value.trim();
+            const sdt = document.getElementById('txt_sdt').value.trim();
+            const diaChi = document.getElementById('txt_diachi').value.trim();
+
+            if(!hoTen || !sdt || !diaChi) {
+                alert('Vui lòng điền đầy đủ Họ tên, Số điện thoại và Địa chỉ nhận hàng!');
+                return;
+            }
+
+            let keys = Object.keys(gioHang);
+            if(keys.length === 0) {
+                alert('Giỏ hàng trống! Vui lòng chọn ít nhất một món ăn ngon từ thực đơn.');
+                return;
+            }
+
+            let tongTien = 0;
+            let danhSachMon = [];
+            keys.forEach(name => {
+                tongTien += gioHang[name].price * gioHang[name].qty;
+                danhSachMon.push(`${name} (x${gioHang[name].qty})`);
+            });
+
+            const maDon = `SHIP-${Date.now().toString().slice(-6)}`;
+
+            // Đóng gói payload đơn ship để lưu trữ đồng bộ
+            const donHang = {
+                id: maDon,
+                type: "SHIP",
+                customerName: hoTen,
+                phone: sdt,
+                address: diaChi,
+                items: danhSachMon,
+                total: tongTien,
+                status: "PENDING",
+                shipperName: "",
+                time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            // Lấy danh sách cũ và nạp đơn mới vào localStorage
+            let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            orders.push(donHang);
+            localStorage.setItem('orders', JSON.stringify(orders));
+
+            // Hiển thị modal VietQR động lấp lánh sang trọng
+            document.getElementById('md_id').innerText = maDon;
+            document.getElementById('md_ten').innerText = hoTen;
+            document.getElementById('md_sdt').innerText = sdt;
+            document.getElementById('md_dc').innerText = diaChi;
+
+            const bankId = "ICB";
+            const accountNo = "19036599630010";
+            const template = "qr_only";
+            const addInfo = encodeURIComponent(`CQANH SHIP ${maDon}`);
+            const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${tongTien}&addInfo=${addInfo}&accountName=Den%20A%20Quynh%20Anh%20lop%204%20co%20son`;
+
+            document.getElementById('img_vietqr').src = qrUrl;
+            document.getElementById('qr_modal').style.display = 'flex';
+        }
+
+        function dongModal() {
+            document.getElementById('qr_modal').style.display = 'none';
+            gioHang = {};
+            renderGioHang();
+            document.getElementById('txt_hoten').value = '';
+            document.getElementById('txt_sdt').value = '';
+            document.getElementById('txt_diachi').value = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.onload = initMenu;
+    </script>
+</body>
+</html>

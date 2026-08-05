@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Màn Hình POS Thu Ngân Trung Tâm - TIỆM CHÈ QUỲNH ANH</title>
+    
+<style>
+    :root { --kfc-red: #e4002b; --kfc-white: #ffffff; --bg-gray: #f8f9fa; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg-gray); color: #333; padding-bottom: 80px; }
+    .header { background-color: var(--kfc-red); color: var(--kfc-white); padding: 20px; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .header h1 { font-size: 26px; font-weight: 800; letter-spacing: 1px; }
+    .info-bar { background: #fff; margin: 15px; padding: 15px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; justify-content: space-around; font-size: 14px; gap: 10px; }
+    .info-item { display: flex; align-items: center; gap: 5px; font-weight: 600; color: #555; }
+    .container { padding: 15px; max-width: 1200px; margin: 0 auto; }
+    .section-title { font-size: 18px; color: var(--kfc-red); margin: 20px 0 10px 0; border-left: 5px solid var(--kfc-red); padding-left: 10px; font-weight: 700; }
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+    .menu-item { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: transform 0.2s; position: relative; }
+    .menu-item:hover { transform: translateY(-3px); }
+    .menu-item img { width: 100%; height: 150px; object-fit: cover; }
+    .menu-body { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
+    .menu-title { font-size: 15px; font-weight: 700; color: #222; margin-bottom: 5px; }
+    .menu-price { font-size: 16px; color: var(--kfc-red); font-weight: 800; }
+    .btn-add { background-color: var(--kfc-red); color: white; border: none; padding: 8px 12px; border-radius: 20px; font-weight: 600; cursor: pointer; margin-top: 10px; width: 100%; transition: opacity 0.2s; }
+    .btn-add:hover { opacity: 0.9; }
+    .cart-summary { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 15px 25px; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 999; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+    .cart-info { font-size: 16px; font-weight: 700; }
+    .btn-checkout { background-color: var(--kfc-red); color: white; border: none; padding: 12px 25px; border-radius: 25px; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 4px 10px rgba(228,0,43,0.3); }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
+    .modal-content { background: #fff; padding: 25px; border-radius: 20px; width: 100%; max-width: 450px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+    .close-modal { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; color: #888; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; }
+    .form-control { width: 100%; padding: 10px 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; outline: none; }
+    .form-control:focus { border-color: var(--kfc-red); }
+    .qr-container { text-align: center; margin-top: 15px; display: none; }
+    .qr-container img { max-width: 100%; border: 3px solid var(--kfc-red); border-radius: 10px; padding: 5px; background: white; }
+</style>
+
+    <style>
+        body { padding-bottom: 20px; background: #eaedf1; }
+        .pos-layout { display: flex; gap: 20px; padding: 20px; max-width: 1600px; margin: 0 auto; }
+        .pos-left { flex: 2; background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .pos-right { flex: 1; background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: sticky; top: 20px; height: calc(100vh - 40px); overflow-y: auto; }
+        .order-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .order-table th, .order-table td { padding: 12px 10px; border-bottom: 1px solid #eee; }
+        .order-table th { background: var(--kfc-red); color: white; }
+        .badge { padding: 5px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; color: white; }
+        .badge-cooking { background: #ff9800; }
+        .badge-done { background: #4caf50; }
+        .btn-pos { border: none; padding: 6px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; color: white; margin-right: 5px; }
+        .btn-done { background: #4caf50; }
+        .btn-qr { background: #2196f3; }
+        .gun-input { width: 100%; padding: 12px; border: 2px solid var(--kfc-red); border-radius: 10px; margin-bottom: 15px; font-size: 16px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header" style="text-align: left; padding: 15px 30px; display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <h1>TIỆM CHÈ QUỲNH ANH - TRẠM THU NGÂN POS</h1>
+            <p style="font-size:13px; opacity:0.9;">Đồng bộ dữ liệu đa luồng mạng lưới cửa hàng thực thời</p>
+        </div>
+        <div style="font-weight:bold; font-size:16px; background:rgba(255,255,255,0.2); padding:8px 15px; border-radius:10px;">Hotline: 0972.806.926</div>
+    </div>
+
+    <div class="pos-layout">
+        <div class="pos-left">
+            <h3 style="margin-bottom: 15px; color:#222; font-weight:700; border-bottom:2px solid var(--kfc-red); padding-bottom:5px;">DANH SÁCH ĐƠN HÀNG HỆ THỐNG</h3>
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Mã Đơn</th>
+                        <th>Thời Gian</th>
+                        <th>Vị Trí</th>
+                        <th>Khách Hàng / SĐT</th>
+                        <th>Chi Tiết Món Ăn</th>
+                        <th>Tổng Tiền</th>
+                        <th>Trạng Thái</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody id="pos-order-list">
+                    <!-- Đơn hàng tự động đổ về đây -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pos-right">
+            <h3 style="margin-bottom:15px; color:var(--kfc-red); font-weight:700;">HỘP QUÉT SÚNG HOẶC GÕ MÃ</h3>
+            <input type="text" id="barcode-input" class="gun-input" placeholder="Gõ mã tay / Bắn súng mã quét đơn tại đây..." onkeypress="handleBarcode(event)">
+            <p style="font-size:12px; color:#666; margin-top:-10px; margin-bottom:15px;">Ấn Enter để kích hoạt kiểm thử hoặc dùng thiết bị đọc súng.</p>
+            
+            <hr style="margin:20px 0; border:none; border-top:1px solid #ddd;">
+            <h3 style="margin-bottom:15px; color:#222; font-weight:700;">MÀN HÌNH PHỤ HIỂN THỊ QUÉT QR</h3>
+            <div id="pos-qr-screen" style="text-align:center; border:2px dashed #bbb; border-radius:15px; padding:20px; background:#fafafa; min-height:260px;">
+                <p style="color:#888; margin-top:100px;">Chưa chọn đơn hiển thị QR</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+const MENU = {
+    "MY_CAY": [
+        { name: "Mỳ cay thập cẩm", price: 40000, img: "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500" },
+        { name: "Mỳ bò", price: 40000, img: "https://images.unsplash.com/photo-1547928576-a4a33234bed3?w=500" },
+        { name: "Mỳ sụn", price: 40000, img: "https://images.unsplash.com/photo-1623341214825-9f4f9718e043?w=500" },
+        { name: "Mỳ bắp", price: 40000, img: "https://images.unsplash.com/photo-1552611052-33e04de081de?w=500" },
+        { name: "Mỳ cay xúc xích", price: 30000, img: "https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=500" }
+    ],
+    "CHE_DAC_SAN": [
+        { name: "Chè sầu đặc biệt", price: 30000, img: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=500" },
+        { name: "Chè dừa non", price: 20000, img: "https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=500" },
+        { name: "Chè bưởi", price: 20000, img: "https://images.unsplash.com/photo-1590080875515-8a3a8dc5735e?w=500" },
+        { name: "Chè thập cẩm", price: 18000, img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500" }
+    ],
+    "TRA_SUA_HOT": [
+        { name: "Matcha latte Xoài", price: 35000, img: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=500" },
+        { name: "Matcha latte Dâu", price: 35000, img: "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500" },
+        { name: "Matcha latte Việt quất", price: 35000, img: "https://images.unsplash.com/photo-1553909489-cd47e0907980?w=500" },
+        { name: "Sữa tươi trân châu đường đen", price: 35000, img: "https://images.unsplash.com/photo-1541658016709-82535e94bc69?w=500" },
+        { name: "Trà sữa trứng đùa nướng", price: 30000, img: "https://images.unsplash.com/photo-1507133750040-4a8f57021571?w=500" },
+        { name: "Trà sữa Kem trứng", price: 30000, img: "https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=500" },
+        { name: "Trà sữa dâu", price: 20000, img: "https://images.unsplash.com/photo-1497534446932-c925b458314e?w=500" },
+        { name: "Trà sữa Việt quất", price: 20000, img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500" },
+        { name: "Trà sữa Khoai môn", price: 25000, img: "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=500" },
+        { name: "Trà sữa Socola", price: 25000, img: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=500" },
+        { name: "Trà sữa Matcha", price: 25000, img: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=500" }
+    ],
+    "SINH_TO_SUA_CHUA": [
+        { name: "Sinh tố Xoài", price: 30000, img: "https://images.unsplash.com/photo-1603569283847-bec56593c6c9?w=500" },
+        { name: "Sinh tố Bơ", price: 30000, img: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500" },
+        { name: "Sinh tố Bắp", price: 30000, img: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=500" },
+        { name: "Sinh tố Dâu", price: 30000, img: "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=500" },
+        { name: "Sữa chua Hoa quả", price: 25000, img: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500" },
+        { name: "Sữa chua Mít", price: 25000, img: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=500" },
+        { name: "Sữa chua Xoài", price: 25000, img: "https://images.unsplash.com/photo-1560512823-829485b8bf24?w=500" },
+        { name: "Sữa chua Đánh đá", price: 20000, img: "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=500" },
+        { name: "Sữa chua Matcha", price: 20000, img: "https://images.unsplash.com/photo-1536256263959-770b48d82b0a?w=500" },
+        { name: "Sữa chua Việt quất", price: 20000, img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500" }
+    ],
+    "TRA_CA_PHE": [
+        { name: "Cà phê muối", price: 20000, img: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=500" },
+        { name: "Cà phê Đen đá", price: 20000, img: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500" },
+        { name: "Bạc xỉu", price: 20000, img: "https://images.unsplash.com/photo-1461023058043-03348541c881?w=500" },
+        { name: "Cà phê Nâu đá", price: 20000, img: "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=500" },
+        { name: "Trà đào", price: 25000, img: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500" },
+        { name: "Trà đào cam sả", price: 25000, img: "https://images.unsplash.com/photo-1497534446932-c925b458314e?w=500" },
+        { name: "Ép dưa hấu", price: 25000, img: "https://images.unsplash.com/photo-1543257580-7269da773bf5?w=500" },
+        { name: "Trà chanh nha đam", price: 15000, img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500" },
+        { name: "Trà chanh truyền thống", price: 10000, img: "https://images.unsplash.com/photo-1556881286-fc6915169721?w=500" }
+    ],
+    "AN_VAT": [
+        { name: "Khoai tây lắc phô mai", price: 30000, img: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500" },
+        { name: "Khoai lang kén", price: 30000, img: "https://images.unsplash.com/photo-1518013041695-1996924d5b2c?w=500" },
+        { name: "Cánh gà chiên nước mắm (chiếc)", price: 28000, img: "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=500" },
+        { name: "Đùi gà rán giòn cay (chiếc)", price: 25000, img: "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?w=500" },
+        { name: "Bánh tráng trộn", price: 25000, img: "https://images.unsplash.com/photo-1626132647523-66f5bf380027?w=500" },
+        { name: "Bánh tráng cuộn", price: 25000, img: "https://images.unsplash.com/photo-1626132647523-66f5bf380027?w=500" },
+        { name: "Xúc xích (chiếc)", price: 10000, img: "https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=500" },
+        { name: "Lạp xưởng (chiếc)", price: 10000, img: "https://images.unsplash.com/photo-1593001874117-1f9e1e66708e?w=500" },
+        { name: "Nem chua rán", price: 10000, img: "https://images.unsplash.com/photo-1541518763669-27fef04b14ea?w=500" },
+        { name: "Hướng dương (gói)", price: 10000, img: "https://images.unsplash.com/photo-1511426463457-0571e247d4b6?w=500" },
+        { name: "Phô mai que (chiếc)", price: 8000, img: "https://images.unsplash.com/photo-1531749668029-2db88e4b76ce?w=500" }
+    ]
+};
+const STORE_INFO = {
+    name: "TIỆM CHÈ QUỲNH ANH",
+    phone: "0972.806.926",
+    wifi: "Phamson",
+    wifiPass: "19111989",
+    bank: "Techcombank",
+    accNum: "19036599630010",
+    accName: "Đến A Quỳnh Anh lớp 4 cô son"
+};
+
+
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem(`orders`) || `[]`);
+            const tbody = document.getElementById(`pos-order-list`);
+            tbody.innerHTML = ``;
+
+            if(orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#999; padding:20px;">Chưa có đơn đặt hàng nào phát sinh trên hệ thống.</td></tr>`;
+                return;
+            }
+
+            orders.reverse().forEach(order => {
+                let tr = document.createElement(`tr`);
+                let badgeClass = order.status === `CHẾ BIẾN` ? `badge-cooking` : `badge-done`;
+                
+                tr.innerHTML = `
+                    <td style="font-weight:bold; color:var(--kfc-red)">${order.id}</td>
+                    <td>${order.time}</td>
+                    <td><b>${order.table}</b></td>
+                    <td>${order.customer}<br><span style="font-size:11px; color:#666;">${order.phone}</span></td>
+                    <td style="max-width:250px; font-size:13px; color:#444;">${order.items.join(`, `)}</td>
+                    <td style="font-weight:bold; color:#111;">${order.total.toLocaleString('vi-VN')}đ</td>
+                    <td><span class="badge ${badgeClass}">${order.status}</span></td>
+                    <td>
+                        ${order.status === 'CHẾ BIẾN' ? `<button class="btn-pos btn-done" onclick="completeOrder('${order.id}')">Xong Món</button>` : ``}
+                        <button class="btn-pos btn-qr" onclick="showCustomerQR('${order.id}')">Hiện QR</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function completeOrder(orderId) {
+            let orders = JSON.parse(localStorage.getItem(`orders`) || `[]`);
+            let found = orders.find(o => o.id === orderId);
+            if(found) {
+                found.status = `ĐÃ XONG`;
+                localStorage.setItem(`orders`, JSON.stringify(orders));
+                loadOrders();
+            }
+        }
+
+        function showCustomerQR(orderId) {
+            const orders = JSON.parse(localStorage.getItem(`orders`) || `[]`);
+            const order = orders.find(o => o.id === orderId);
+            if(!order) return;
+
+            const addInfo = `CQANH ${order.table.replace(' ', '')} ${order.id}`;
+            const qrUrl = `https://img.vietqr.io/image/TCB-19036599630010-compact2.png?amount=${order.total}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(STORE_INFO.accName)}`;
+
+            const qrScreen = document.getElementById(`pos-qr-screen`);
+            qrScreen.innerHTML = `
+                <h4 style="color:var(--kfc-red); margin-bottom:10px;">ĐƠN ${order.id} - ${order.table}</h4>
+                <img src="${qrUrl}" style="width:200px; height:200px; border:2px solid var(--kfc-red); border-radius:10px; background:white; padding:4px;">
+                <div style="font-weight:bold; margin-top:8px; font-size:16px; color:#111;">${order.total.toLocaleString('vi-VN')}đ</div>
+                <button class="btn-pos btn-done" style="margin-top:10px; width:100%;" onclick="alert('Đã giả lập ra lệnh kích hoạt in nhiệt dọc K80 thành công!')">🖨️ KÍCH HOẠT LỆNH IN NHIỆT</button>
+            `;
+        }
+
+        function handleBarcode(e) {
+            if (e.key === 'Enter') {
+                const val = document.getElementById(`barcode-input`).value.trim();
+                document.getElementById(`barcode-input`).value = ``;
+                if(!val) return;
+
+                let orders = JSON.parse(localStorage.getItem(`orders`) || `[]`);
+                let order = orders.find(o => o.id.toUpperCase() === val.toUpperCase());
+
+                if (order) {
+                    speakVietnamese(`Quét thành công đơn hàng số ` + val);
+                    showCustomerQR(order.id);
+                } else {
+                    playWin11ErrorAudio();
+                    speakEnglish(`Error! Error!`);
+                }
+            }
+        }
+
+        function speakVietnamese(text) {
+            if (`speechSynthesis` in window) {
+                let msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'vi-VN';
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        function speakEnglish(text) {
+            if (`speechSynthesis` in window) {
+                let msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'en-US';
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        function playWin11ErrorAudio() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Tiếng Tứng (440Hz)
+                let osc1 = audioCtx.createOscillator();
+                let gain1 = audioCtx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc1.connect(gain1);
+                gain1.connect(audioCtx.destination);
+                gain1.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                osc1.start();
+                gain1.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                osc1.stop(audioCtx.currentTime + 0.15);
+
+                // Tiếng Từng (293Hz) sụt xuống giật cục
+                setTimeout(() => {
+                    let osc2 = audioCtx.createOscillator();
+                    let gain2 = audioCtx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(293, audioCtx.currentTime);
+                    osc2.connect(gain2);
+                    gain2.connect(audioCtx.destination);
+                    gain2.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    osc2.start();
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc2.stop(audioCtx.currentTime + 0.25);
+                }, 120);
+
+            } catch(e) {
+                console.log("Web Audio API error", e);
+            }
+        }
+
+        window.onload = function() {
+            loadOrders();
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'orders') {
+                    loadOrders();
+                }
+            });
+        };
+    </script>
+</body>
+</html>

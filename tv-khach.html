@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Màn Hình TV Khách Hàng - Tiệm Chè Quỳnh Anh</title>
+    <style>
+        :root {
+            --primary-color: #d63031;
+            --dark-color: #2d3436;
+            --light-color: #ffffff;
+            --accent-color: #f5cd79;
+        }
+        body { font-family: Arial, sans-serif; text-align: center; background: #fff5f5; margin: 0; padding: 0; }
+        header { background: var(--primary-color); color: white; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 40px; text-transform: uppercase; }
+        
+        /* Thanh bấm mở loa chuẩn Chrome */
+        #Banner { background: #ffeaa7; color: #d63031; padding: 15px; font-weight: bold; font-size: 20px; cursor: pointer; user-select: none; display: block; border-bottom: 2px solid #fdcb6e; }
+        
+        .wrapper { display: flex; max-width: 1400px; margin: 30px auto; gap: 30px; width: 95%; justify-content: center; align-items: flex-start; }
+        .left-content { flex: 2; display: flex; flex-direction: column; gap: 20px; }
+        .box { background: linear-gradient(135deg, #e17055, var(--primary-color)); border-radius: 15px; padding: 35px; color: white; box-shadow: 0 10px 25px rgba(214,48,49,0.3); }
+        .box h2 { margin: 0; font-size: 26px; text-transform: uppercase; color: #f5cd79; }
+        #HienThiSo { font-size: 110px; font-weight: bold; margin: 15px 0; font-family: Courier, monospace; }
+        #HienThiMon { font-size: 32px; background: rgba(0,0,0,0.15); padding: 10px 25px; border-radius: 20px; display: inline-block; margin-bottom: 10px; }
+        #HienThiPtt { font-size: 22px; color: #ffeaa7; font-weight: bold; text-transform: uppercase; }
+
+        .right-content { flex: 1.3; display: flex; flex-direction: column; gap: 20px; }
+        
+        /* Khung hiển thị QR Động vẽ từ ngân hàng */
+        .qr-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; display: none; text-align: center; }
+        .qr-card img { width: 250px; height: 250px; border: 1px solid #ddd; padding: 5px; border-radius: 5px; background: white; }
+        .qr-details { margin-top: 12px; text-align: left; background: #f8f9fa; padding: 12px; border-radius: 8px; border-left: 4px solid #0056aa; font-size: 15px; color: #333; }
+        .qr-details strong { color: #d63031; font-size: 16px; }
+
+        .utility-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; text-align: left; border-top: 5px solid #2ecc71; }
+        .utility-card h4 { margin: 0 0 12px 0; font-size: 18px; color: #2ecc71; text-transform: uppercase; display: flex; align-items: center; gap: 8px; border-bottom: 1px dashed #eee; padding-bottom: 5px; }
+        .util-info { font-size: 16px; color: #444; line-height: 1.8; }
+        .util-info span { font-weight: bold; color: #2d3436; }
+        .util-info .highlight { color: #d63031; font-size: 18px; font-weight: bold; font-family: monospace; }
+
+        .history-box { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; text-align: left; }
+        .history-box h3 { margin: 0 0 15px 0; font-size: 20px; color: var(--primary-color); text-transform: uppercase; border-bottom: 2px solid var(--primary-color); padding-bottom: 5px; text-align: center; }
+        .history-list { list-style: none; padding: 0; margin: 0; }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: #fff5f5; margin-bottom: 8px; border-left: 5px solid #d63031; border-radius: 4px; font-size: 18px; }
+        .hist-code { font-weight: bold; color: #d63031; }
+        .hist-ptt { color: #ff7675; font-weight: bold; font-size: 14px; margin-left: 5px; }
+        .hist-dish { color: #555; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <!-- Thanh thông báo mở loa cho Chrome -->
+    <div id="Banner" onclick="KichHoatLoaTV()">🔔 BẤM VÀO ĐÂY ĐỂ MỞ LOA PHÁT CHO TV KHÁCH (CHỈ BẤM 1 LẦN KHI MỞ WEB) 🔔</div>
+    
+    <header>
+        <h1>Tiệm Chè Quỳnh Anh</h1>
+    </header>
+
+    <div class="wrapper">
+        <div class="left-content">
+            <div class="box">
+                <h2>Khách hàng có mã là</h2>
+                <div id="HienThiSo">---</div>
+                <div id="HienThiMon">Chờ đơn hàng...</div>
+                <div id="HienThiPtt">Hình thức: ---</div>
+            </div>
+        </div>
+
+        <div class="right-content">
+            <!-- Khung mã QR động chứa tiền tự vẽ -->
+            <div class="qr-card" id="QrArea">
+                <img id="QrDong" src="" alt="Mã QR Tự Động Vẽ">
+                <div class="qr-details">
+                    <div>Ngân hàng: <strong>Techcombank</strong></div>
+                    <div>STK: <strong style="font-family: monospace; font-size: 17px;">19036599630010</strong></div>
+                    <div>Chủ TK: <strong>DEN A QUYNH ANH LOP CO SON</strong></div>
+                    <div>Số tiền quét: <strong id="QrTxtTien" style="color: #d63031; font-size: 18px;">0 VND</strong></div>
+                </div>
+            </div>
+
+            <div class="utility-card">
+                <h4>ℹ️ THÔNG TIN TIỆN ÍCH</h4>
+                <div class="util-info">
+                    <div>📶 Tên Wifi: <span>VIETTEL_Pham Son</span></div>
+                    <div>🔑 Mật khẩu: <span class="highlight">19111989</span></div>
+                    <div style="margin-top: 5px; padding-top: 5px; border-top: 1px dashed #eee;">📞 Gọi ship: <span class="highlight" style="color: #0056aa;">0972.806.926</span></div>
+                </div>
+            </div>
+
+            <div class="history-box">
+                <h3>10 mã vừa gọi gần nhất</h3>
+                <ul id="LichSu" class="history-list">
+                    <li style="color:#aaa; text-align:center; padding: 10px;">Chưa có lịch sử gọi</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var callHistory = [];
+        var audioCtx = null;
+        var kenhNhan = new BroadcastChannel('kenh_goi_mon_quynhanh');
+
+        // Ép tải trước kho giọng đọc tiếng Việt của Google Chrome
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = function() {
+                window.speechSynthesis.getVoices();
+            };
+        }
+
+        function KichHoatLoaTV() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            document.getElementById("Banner").style.display = "none";
+        }
+
+        kenhNhan.onmessage = function(event) {
+            var data = event.data;
+            TuDongXulyGoiMon(data.so, data.mon, data.ptt, data.tien);
+        };
+
+        function DocSoTienTiengViet(so) {
+            if(!so || so === "0" || so === "") return "";
+            var n = parseInt(so);
+            if (isNaN(n)) return "";
+            if (n === 25000) return "hai mươi lăm nghìn";
+            if (n === 30000) return "ba mươi nghìn";
+            if (n === 35000) return "ba mươi lăm nghìn";
+            if (n === 50000) return "năm mươi nghìn";
+            return so.split('').join(' ');
+        }
+
+        function ChuôngTingTing(callback) {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            var o1 = audioCtx.createOscillator(), g1 = audioCtx.createGain();
+            o1.frequency.setValueAtTime(600, audioCtx.currentTime); 
+            g1.gain.setValueAtTime(0.4, audioCtx.currentTime);
+            g1.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            o1.connect(g1); g1.connect(audioCtx.destination); o1.start(); o1.stop(audioCtx.currentTime + 0.3);
+            
+            setTimeout(function() {
+                var o2 = audioCtx.createOscillator(), g2 = audioCtx.createGain();
+                o2.frequency.setValueAtTime(900, audioCtx.currentTime); 
+                g2.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                g2.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                o2.connect(g2); g2.connect(audioCtx.destination); o2.start(); o2.stop(audioCtx.currentTime + 0.4);
+            }, 200);
+            
+            setTimeout(function() { if (callback) callback(); }, 700);
+        }
+
+        function TuDongXulyGoiMon(txtSo, txtMon, txtPtt, txtTien) {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            var maFull = "QA" + txtSo;
+            document.getElementById("HienThiSo").innerHTML = maFull;
+            document.getElementById("HienThiMon").innerHTML = txtMon;
+            
+            var qrArea = document.getElementById("QrArea");
+            var txtHienThiHinhThuc = txtPtt;
+
+            if (txtPtt === "Techcombank QR") {
+                var tienDinhDang = parseInt(txtTien).toLocaleString('vi-VN') + " VND";
+                document.getElementById("QrTxtTien").innerHTML = tienDinhDang;
+                txtHienThiHinhThuc = txtPtt + " (" + tienDinhDang + ")";
+
+                var urlVietQR = "https://vietqr.io" + txtTien + "&addInfo=" + encodeURIComponent("Thanh toan " + maFull) + "&accountName=DEN A QUYNH ANH LOP CO SON";
+                document.getElementById("QrDong").src = urlVietQR;
+                qrArea.style.display = "block";
+            } else {
+                qrArea.style.display = "none";
+            }
+            
+            document.getElementById("HienThiPtt").innerHTML = "Hình thức: " + txtHienThiHinhThuc;
+            // 1. Phân loại và định dạng phương thức thanh toán để lưu vào lịch sử (Đã sửa lỗi đơ khi chọn Tiền mặt)
+            var nhanPttLichSu = "";
+            if (txtPtt === "Techcombank QR") {
+                var sotiengoc = parseInt(txtTien);
+                if (isNaN(sotiengoc)) sotiengoc = 0;
+                nhanPttLichSu = "QR " + sotiengoc.toLocaleString('vi-VN') + "đ";
+            } else {
+                nhanPttLichSu = "Tiền mặt";
+            }
+            
+            // 2. Thêm đơn hàng mới vào đầu danh sách và khống chế tối đa 10 mục
+            callHistory.unshift({ code: maFull, dish: txtMon, ptt: nhanPttLichSu });
+            if (callHistory.length > 10) callHistory.pop();
+
+            // 3. Khôi phục cấu trúc CSS bọc thẻ giúp hiển thị đúng màu led đỏ và chia khung đẹp mắt trên TV
+            var listContainer = document.getElementById("LichSu");
+            listContainer.innerHTML = "";
+            callHistory.forEach(function(item) {
+                var li = document.createElement("li");
+                li.className = "history-item";
+                li.innerHTML = "<div><span class='hist-code'>" + item.code + "</span> <span class='hist-ptt'>[" + item.ptt + "]</span></div><span class='hist-dish'>" + item.dish + "</span>";
+                listContainer.appendChild(li);
+            });
+
+            // 4. Giải phóng hàng đợi âm thanh cũ chống nghẽn loa
+            if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+            // 5. Kích hoạt chuông Ting Ting và phát giọng đọc AI thông minh theo số tiền gõ tay
+            ChuôngTingTing(function() {
+                if ('speechSynthesis' in window) {
+                    var docSo = txtSo.split('').join(' ');
+                    var cauNoi = "";
+                    
+                    if (txtPtt === "Techcombank QR") {
+                        var chuDocTien = DocSoTienTiengViet(txtTien);
+                        cauNoi = "Khách hàng có mã Q A " + docSo + " thanh toán bằng chuyển khoản Techcombank qua mã Q R số tiền " + chuDocTien + " đồng với món ăn đã đặt là " + txtMon + " vui lòng đợi nhân viên mang ra";
+                    } else {
+                        cauNoi = "Khách hàng có mã Q A " + docSo + " thanh toán bằng " + txtPtt + " với món ăn đã đặt là " + txtMon + " vui lòng đợi nhân viên mang ra";
+                    }
+                    
+                    var speech = new SpeechSynthesisUtterance(cauNoi);
+                    speech.lang = "vi-VN"; 
+                    speech.rate = 0.85;
+                    speech.volume = 1;
+
+                    // Ép trình duyệt chọn đúng công cụ giọng đọc Tiếng Việt
+                    var giong = window.speechSynthesis.getVoices().find(function(v) { 
+                        return v.lang.includes('vi-VN') || v.lang.includes('vi'); 
+                    });
+                    if (giong) speech.voice = giong;
+                    window.speechSynthesis.speak(speech);
+                }
+            });
+        } // Dấu đóng ngoặc nhọn kết thúc toàn bộ hàm xử lý hiển thị TV của quán

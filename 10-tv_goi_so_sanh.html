@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Màn Hình Tivi LED Điều Phối Sảnh - TIỆM CHÈ QUỲNH ANH</title>
+    
+<style>
+    :root { --kfc-red: #e4002b; --kfc-white: #ffffff; --bg-gray: #f8f9fa; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+    body { background-color: var(--bg-gray); color: #333; padding-bottom: 80px; }
+    .header { background-color: var(--kfc-red); color: var(--kfc-white); padding: 20px; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .header h1 { font-size: 26px; font-weight: 800; letter-spacing: 1px; }
+    .info-bar { background: #fff; margin: 15px; padding: 15px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; justify-content: space-around; font-size: 14px; gap: 10px; }
+    .info-item { display: flex; align-items: center; gap: 5px; font-weight: 600; color: #555; }
+    .container { padding: 15px; max-width: 1200px; margin: 0 auto; }
+    .section-title { font-size: 18px; color: var(--kfc-red); margin: 20px 0 10px 0; border-left: 5px solid var(--kfc-red); padding-left: 10px; font-weight: 700; }
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+    .menu-item { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: transform 0.2s; position: relative; }
+    .menu-item:hover { transform: translateY(-3px); }
+    .menu-item img { width: 100%; height: 150px; object-fit: cover; }
+    .menu-body { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
+    .menu-title { font-size: 15px; font-weight: 700; color: #222; margin-bottom: 5px; }
+    .menu-price { font-size: 16px; color: var(--kfc-red); font-weight: 800; }
+    .btn-add { background-color: var(--kfc-red); color: white; border: none; padding: 8px 12px; border-radius: 20px; font-weight: 600; cursor: pointer; margin-top: 10px; width: 100%; transition: opacity 0.2s; }
+    .btn-add:hover { opacity: 0.9; }
+    .cart-summary { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 15px 25px; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; z-index: 999; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+    .cart-info { font-size: 16px; font-weight: 700; }
+    .btn-checkout { background-color: var(--kfc-red); color: white; border: none; padding: 12px 25px; border-radius: 25px; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 4px 10px rgba(228,0,43,0.3); }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 15px; }
+    .modal-content { background: #fff; padding: 25px; border-radius: 20px; width: 100%; max-width: 450px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+    .close-modal { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; color: #888; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px; }
+    .form-control { width: 100%; padding: 10px 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; outline: none; }
+    .form-control:focus { border-color: var(--kfc-red); }
+    .qr-container { text-align: center; margin-top: 15px; display: none; }
+    .qr-container img { max-width: 100%; border: 3px solid var(--kfc-red); border-radius: 10px; padding: 5px; background: white; }
+</style>
+
+    <style>
+        body { background: #111; color: #fff; padding-bottom: 0; overflow: hidden; height: 100vh; }
+        .tv-layout { display: flex; height: calc(100vh - 100px); }
+        .tv-col { flex: 1; padding: 20px; text-align: center; border: 2px solid #222; }
+        .tv-col-title { font-size: 28px; font-weight: 800; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .bg-preparing { background: #cca300; color: black; }
+        .bg-ready { background: #1e7e34; color: white; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        .num-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; font-size: 40px; font-weight: 900; }
+        .num-item { background: #222; padding: 15px; border-radius: 12px; border: 1px solid #333; }
+        .num-item.ready { background: #28a745; color: white; border-color: #fff; }
+        .footer-marquee { background: var(--kfc-red); height: 45px; line-height: 45px; font-size: 20px; font-weight: bold; overflow: hidden; white-space: nowrap; }
+    </style>
+</head>
+<body>
+    <div class="header" style="border-radius: 0; background: var(--kfc-red);">
+        <h1 style="font-size:32px; letter-spacing:2px;">BẢNG ĐIỀU PHỐI ĐƠN HÀNG ĐIỆN TỬ - TIỆM CHÈ QUỲNH ANH</h1>
+    </div>
+
+    <div class="tv-layout">
+        <div class="tv-col" style="background:#1a1915;">
+            <div class="tv-col-title bg-preparing">MÓN ĐANG CHẾ BIẾN</div>
+            <div class="num-list" id="list-preparing">
+                <!-- Đơn đang làm -->
+            </div>
+        </div>
+        <div class="tv-col" style="background:#131a15;">
+            <div class="tv-col-title bg-ready">MÓN ĐÃ XONG - MỜI NHẬN</div>
+            <div class="num-list" id="list-ready">
+                <!-- Đơn đã xong -->
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-marquee">
+        <marquee scrollamount="6">🎉 CHÀO MỪNG QUÝ KHÁCH ĐẾN VỚI TIỆM CHÈ QUỲNH ANH - PHONG CÁCH PHỤC VỤ HIỆN ĐẠI KFC. ĐƯỜNG DÂY NÓNG GỌI SHIP & PHẢN ÁNH DỊCH VỤ: 0972.806.926 - HỆ THỐNG WIFI MIỄN PHÍ: TÊN WIFI "Phamson" - MẬT KHẨU "19111989" 🎉</marquee>
+    </div>
+
+    <script>
+        let calledOrders = new Set();
+
+        function syncTV() {
+            const orders = JSON.parse(localStorage.getItem(`orders`) || `[]`);
+            const preparingContainer = document.getElementById(`list-preparing`);
+            const readyContainer = document.getElementById(`list-ready`);
+
+            preparingContainer.innerHTML = ``;
+            readyContainer.innerHTML = ``;
+
+            // Lọc danh sách đơn
+            let prepCount = 0;
+            let readyCount = 0;
+
+            orders.forEach(order => {
+                if (order.status === `CHẾ BIẾN` && prepCount < 8) {
+                    let item = document.createElement(`div`);
+                    item.className = `num-item`;
+                    item.innerHTML = `${order.id}<div style="font-size:14px; font-weight:normal; color:#aaa;">${order.table}</div>`;
+                    preparingContainer.appendChild(item);
+                    prepCount++;
+                } else if (order.status === `ĐÃ XONG` && readyCount < 8) {
+                    let item = document.createElement(`div`);
+                    item.className = `num-item ready`;
+                    item.innerHTML = `${order.id}<div style="font-size:14px; font-weight:normal; color:#fff;">${order.table}</div>`;
+                    readyContainer.appendChild(item);
+                    readyCount++;
+
+                    // Nếu là đơn mới xong chưa phát loa, kích hoạt loa đọc tiếng Việt ngay lập tức
+                    if (!calledOrders.has(order.id)) {
+                        calledOrders.add(order.id);
+                        speakVietnameseCall(order.id, order.table);
+                    }
+                }
+            });
+
+            if(prepCount === 0) preparingContainer.innerHTML = `<div style="grid-column: span 2; font-size:20px; color:#666; margin-top:50px;">Không có đơn hàng nào đang đợi</div>`;
+            if(readyCount === 0) readyContainer.innerHTML = `<div style="grid-column: span 2; font-size:20px; color:#666; margin-top:50px;">Không có đơn hàng nào sẵn sàng</div>`;
+        }
+
+        function speakVietnameseCall(orderId, table) {
+            if (`speechSynthesis` in window) {
+                // Cắt tách ký tự để đọc số đơn mượt mà
+                let cleanId = orderId.replace('QA', 'Q A ');
+                let sentence = `Xin thông báo, đơn hàng số ${cleanId} tại vị trí ${table} đã chế biến xong. Xin mời quý khách tới quầy trung tâm để nhận món ngay ạ!`;
+                let msg = new SpeechSynthesisUtterance(sentence);
+                msg.lang = 'vi-VN';
+                msg.rate = 0.95; 
+                window.speechSynthesis.speak(msg);
+            }
+        }
+
+        window.onload = function() {
+            syncTV();
+            // Lắng nghe sự kiện storage cập nhật thời gian thực không cần F5
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'orders') {
+                    syncTV();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
