@@ -281,14 +281,13 @@ const STORE_INFO = {
         }
 
         window.onload = initMenu;
-        // --- ĐOẠN ĐỒNG BỘ ĐÁM MÂY CHO MÁY KHÁCH (CHÈN VÀO TRƯỚC THẺ NÀY </script>) ---
-(function() {
-  const scriptApp = document.createElement('script'); scriptApp.src = "https://gstatic.com";
-  const scriptDb = document.createElement('script'); scriptDb.src = "https://gstatic.com";
-  document.head.appendChild(scriptApp);
-  scriptApp.onload = () => {
-    document.head.appendChild(scriptDb);
-    scriptDb.onload = () => {
+  (function() {
+  const s1 = document.createElement('script'); s1.src = "https://gstatic.com";
+  const s2 = document.createElement('script'); s2.src = "https://gstatic.com";
+  document.head.appendChild(s1);
+  s1.onload = () => {
+    document.head.appendChild(s2);
+    s2.onload = () => {
       const config = {
         apiKey: "AIzaSyB5eeb6omvfUDujnb7NTtFam-X99jGuUpI",
         authDomain: "://firebaseapp.com",
@@ -299,30 +298,10 @@ const STORE_INFO = {
         appId: "1:220203914947:web:0324d639d03749a051f476"
       };
       if (!firebase.apps.length) firebase.initializeApp(config);
-      const db = firebase.database();
-
-      const bieuThucGocSetItem = localStorage.setItem;
-      localStorage.setItem = function(key, value) {
-          bieuThucGocSetItem.apply(this, arguments);
-          if (key === 'orders') {
-              try {
-                  const orders = JSON.parse(value);
-                  orders.forEach(order => {
-                      db.ref('orders/' + order.id).set({
-                          id: order.id,
-                          table: order.table || document.title || "Bàn khách",
-                          status: order.status || "CHẾ BIẾN",
-                          items: order.items || "Đơn hàng mới",
-                          time: new Date().toLocaleTimeString('vi-VN')
-                      });
-                  });
-              } catch(e) { console.error(e); }
-          }
-      };
+      window.database = firebase.database();
     };
   };
 })();
-// --- HẾT ĐOẠN ĐỒNG BỘ ĐÁM MÂY ---
 
     </script>
 </body>
