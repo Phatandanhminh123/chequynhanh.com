@@ -281,6 +281,28 @@ const STORE_INFO = {
         }
 
         window.onload = initMenu;
+        (function() {
+  const s1 = document.createElement('script'); s1.src = "https://gstatic.com";
+  const s2 = document.createElement('script'); s2.src = "https://gstatic.com";
+  document.head.appendChild(s1);
+  s1.onload = () => {
+    document.head.appendChild(s2);
+    s2.onload = () => {
+      const config = {
+        apiKey: "AIzaSyB5eeb6omvfUDujnb7NTtFam-X99jGuUpI",
+        authDomain: "://firebaseapp.com",
+        databaseURL: "https://firebaseio.com",
+        projectId: "chequynhanh",
+        storageBucket: "chequynhanh.firebasestorage.app",
+        messagingSenderId: "220203914947",
+        appId: "1:220203914947:web:0324d639d03749a051f476"
+      };
+      if (!firebase.apps.length) firebase.initializeApp(config);
+      window.database = firebase.database();
+    };
+  };
+})();
+
     </script>
 </body>
 </html>
