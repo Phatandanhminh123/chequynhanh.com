@@ -17,9 +17,26 @@
 <body>
                
     <h1>  Chè Quỳnh Anh Kính Chào Quý Khách</h1>
- <div class="footer-marquee">
+<style>
+        body { background: #111; color: #fff; padding-bottom: 0; overflow: hidden; height: 100vh; }
+        .tv-layout { display: flex; height: calc(100vh - 100px); }
+        .tv-col { flex: 1; padding: 20px; text-align: center; border: 2px solid #222; }
+        .tv-col-title { font-size: 28px; font-weight: 800; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .bg-preparing { background: #cca300; color: black; }
+        .bg-ready { background: #1e7e34; color: white; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        .num-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; font-size: 40px; font-weight: 900; }
+        .num-item { background: #222; padding: 15px; border-radius: 12px; border: 1px solid #333; }
+        .num-item.ready { background: #28a745; color: white; border-color: #fff; }
+        .footer-marquee { background: var(--kfc-red); height: 45px; line-height: 45px; font-size: 20px; font-weight: bold; overflow: hidden; white-space: nowrap; }
+    </style>
+</head>
+<body>
+  
+    <div class="footer-marquee">
         <marquee scrollamount="6">🎉 CHÀO MỪNG QUÝ KHÁCH ĐẾN VỚI TIỆM CHÈ QUỲNH ANH - PHONG CÁCH PHỤC VỤ HIỆN ĐẠI.GỌI SHIP & PHẢN ÁNH DỊCH VỤ: 0972.806.926 - HỆ THỐNG WIFI MIỄN PHÍ: TÊN WIFI "VIETTEL_PHAM SON" - MẬT KHẨU "19111989" 🎉</marquee>
     </div>
+
     <h2>🪑 Khách Tại Bàn</h2>
     <ul>
         <li><a href="1-khach_tai_ban_01.html">➔ Khách tại bàn 01</a></li>
