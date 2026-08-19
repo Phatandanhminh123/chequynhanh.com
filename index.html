@@ -6,44 +6,54 @@
     <title>Chào Mừng Đến Với Chè Quỳnh Anh</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: 0 auto; background-color: #f9f9f9; }
-        h1 { color: #333; text-align: center; }
+        h1 { color: #fff; text-align: center; margin: 0; padding: 10px 0; font-size: 24px; }
         h2 { color: #d9383a; border-bottom: 2px solid #d9383a; padding-bottom: 5px; margin-top: 30px; }
         ul { list-style: none; padding: 0; }
         li { margin-bottom: 10px; }
+        
+        /* Cấu hình chung cho các nút bấm */
         a { display: block; padding: 12px; background: #fff; color: #333; text-decoration: none; border-radius: 6px; border: 1px solid #ddd; transition: all 0.2s; font-weight: bold; }
-        a:hover { background: #d9383a; color: #fff; border-color: #d9383a; transform: translateX(5px); }
+        
+        /* Hiệu ứng khi di chuột vào các nút bấm file HTML (Giữ nguyên nền trắng, chỉ dịch chuyển nhẹ) */
+        a.html-link:hover { background: #fff; color: #333; border-color: #ccc; transform: translateX(5px); }
+        
+        /* Hiệu ứng đặc biệt riêng cho nút Sapo (Bật nền đỏ chữ trắng khi di chuột vào để tạo điểm nhấn) */
+        a.sapo-link:hover { background: #d9383a; color: #fff; border-color: #d9383a; transform: translateX(5px); }
+        
+        .red-banner { background: #d9383a; color: #fff; width: 100%; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
- <div style="background: #d9383a; color: white; padding: 8px 0; font-weight: bold; width: 100%; position: relative; z-index: 9999;">          
-    <h1>  Chè Quỳnh Anh Kính Chào Quý Khách</h1>
- </div>
-</head>
-<body>
-  
-   <div class="header" style="border-radius: 0; background: #d9383a; color: white; padding: 8px 0;">
-    <marquee scrollamount="6">🎉 CHÀO MỪNG QUÝ KHÁCH ĐẾN VỚI TIỆM CHÈ QUỲNH ANH - PHONG CÁCH PHỤC VỤ HIỆN ĐẠI. GỌI SHIP & PHẢN ÁNH DỊCH VỤ: 0972.806.926 - HỆ THỐNG WIFI MIỄN PHÍ: TÊN WIFI "VIETTEL_PHAM SON" - MẬT KHẨU "19111989" 🎉</marquee>
-</div>
+
+    <!-- Tiêu đề chữ trắng nền đỏ -->
+    <div class="red-banner" style="margin-bottom: 5px;">          
+        <h1>Chè Quỳnh Anh Kính Chào Quý Khách</h1>
+    </div>
+
+    <!-- Thanh chạy thông báo chữ trắng nền đỏ -->
+    <div class="red-banner" style="padding: 8px 0; margin-bottom: 20px;">
+        <marquee scrollamount="6">🎉 CHÀO MỪNG QUÝ KHÁCH ĐẾN VỚI TIỆM CHÈ QUỲNH ANH - PHONG CÁCH PHỤC VỤ HIỆN ĐẠI. GỌI SHIP & PHẢN ÁNH DỊCH VỤ: 0972.806.926 - HỆ THỐNG WIFI MIỄN PHÍ: TÊN WIFI "VIETTEL_PHAM SON" - MẬT KHẨU "19111989" 🎉</marquee>
+    </div>
 
     <h2>🪑 Khách Tại Bàn</h2>
     <ul>
-        <li><a href="1-khach_tai_ban_01.html">➔ Khách tại bàn 01</a></li>
-        <li><a href="2-khach_tai_ban_02.html">➔ Khách tại bàn 02</a></li>
-        <li><a href="3-khach_tai_ban_03.html">➔ Khách tại bàn 03</a></li>
-        <li><a href="4-khach_tai_ban_04.html">➔ Khách tại bàn 04</a></li>
-        <li><a href="5-khach_tai_ban_05.html">➔ Khách tại bàn 05</a></li>
-        <li><a href="6-khach_tai_ban_06.html">➔ Khách tại bàn 06</a></li>
-        <li><a href="7-khach_tai_ban_07.html">➔ Khách tại bàn 07</a></li>
-         <li><a href="8-kiosk_tai_quay.html">➔ Kiosk tại quầy</a></li>
+        <li><a class="html-link" href="1-khach_tai_ban_01.html">➔ Khách tại bàn 01</a></li>
+        <li><a class="html-link" href="2-khach_tai_ban_02.html">➔ Khách tại bàn 02</a></li>
+        <li><a class="html-link" href="3-khach_tai_ban_03.html">➔ Khách tại bàn 03</a></li>
+        <li><a class="html-link" href="4-khach_tai_ban_04.html">➔ Khách tại bàn 04</a></li>
+        <li><a class="html-link" href="5-khach_tai_ban_05.html">➔ Khách tại bàn 05</a></li>
+        <li><a class="html-link" href="6-khach_tai_ban_06.html">➔ Khách tại bàn 06</a></li>
+        <li><a class="html-link" href="7-khach_tai_ban_07.html">➔ Khách tại bàn 07</a></li>
+        <li><a class="html-link" href="8-kiosk_tai_quay.html">➔ Kiosk tại quầy</a></li>
     </ul>
 
     <h2>🛵 Giao Hàng</h2>
     <ul>
-        <li><a href="11-khach_ship_tan_noi.html">➔ Khách đặt ship tận nơi 11</a></li>
-        <li><a href="12-khach_ship_tan_noi.html">➔ Khách đặt ship tận nơi 12</a></li>
-  <!-- Link Sapo của bạn đã được kích hoạt chính xác ở đây -->
-        <li><a href="https://chequynhanhbot.cuahang.me">➔ Khách đặt ship tận nơi 13 Sapo</a></li>
-                                                                             </ul>
+        <li><a class="html-link" href="11-khach_ship_tan_noi.html">➔ Khách đặt ship tận nơi 11</a></li>
+        <li><a class="html-link" href="12-khach_ship_tan_noi.html">➔ Khách đặt ship tận nơi 12</a></li>
+        <!-- Nút liên kết Sapo -->
+        <li><a class="sapo-link" href="https://chequynhanhbot.cuahang.me">➔ Khách đặt ship tận nơi 13 Sapo</a></li>
+    </ul>
    
 </body>
 </html>
