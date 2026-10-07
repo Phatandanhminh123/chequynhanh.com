@@ -1,1 +1,156 @@
-https://docs.google.com/document/d/1mA2al3mjB9akxsA3gxxkhIybQ5JWpiADo9PAmXwAk5c/edit?usp=drivesdk
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống hiển thị mã bảo mật</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #1e1e1e;
+            color: #39ff14;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        /* Giao diện nhập mật khẩu */
+        #password-screen {
+            text-align: center;
+            background: #000;
+            padding: 30px;
+            border-radius: 8px;
+            border: 2px solid #ff3333;
+            box-shadow: 0 0 15px #ff3333;
+        }
+        #password-screen h2 {
+            color: #fff;
+            margin-top: 0;
+            font-family: Arial, sans-serif;
+        }
+        input {
+            padding: 10px;
+            font-size: 18px;
+            text-align: center;
+            border: 1px solid #39ff14;
+            background: #222;
+            color: #39ff14;
+            border-radius: 4px;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #39ff14;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        button:hover {
+            background-color: #fff;
+            box-shadow: 0 0 10px #39ff14;
+        }
+        #error-msg {
+            color: #ff3333;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        /* Giao diện hiển thị mã */
+        #display-screen {
+            display: none; /* Ẩn đi lúc đầu */
+            text-align: center;
+        }
+        #container {
+            font-size: 28px;
+            border: 2px solid #39ff14;
+            padding: 20px 50px;
+            border-radius: 8px;
+            background-color: #000;
+            min-height: 40px;
+            min-width: 220px;
+            text-align: center;
+            box-shadow: 0 0 15px #39ff14;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MÀN HÌNH NHẬP MẬT KHẨU -->
+    <div id="password-screen">
+        <h2>HỆ THỐNG BẢO MẬT</h2>
+        <p style="color: #aaa;">Vui lòng nhập mã truy cập để xem dữ liệu</p>
+        <input type="password" id="pwd-input" placeholder="Nhập mật khẩu..." onkeydown="checkEnter(event)">
+        <button onclick="verifyPassword()">XÁC NHẬN</button>
+        <div id="error-msg"></div>
+    </div>
+
+    <!-- MÀN HÌNH HIỂN THỊ MÃ -->
+    <div id="display-screen">
+        <h2 style="color: #fff; font-family: Arial, sans-serif;">Đang giải mã dữ liệu...</h2>
+        <div id="container">Sẵn sàng...</div>
+    </div>
+
+    <script>
+        // Danh sách mã bảo mật
+        const danhSachMa = [
+            "d9dsx89h8", "p9b67vikf", "e26c2ds16", "rb1d0v7b3", "t7gyjsndl",
+            "0e9fupet8", "05ytr7lht", "l6hfi92ej", "qdpk7hk21", "s0t1peu5b"
+        ];
+
+        let index = 0;
+
+        // Hàm kiểm tra khi bấm phím Enter trong ô nhập
+        function checkEnter(event) {
+            if (event.key === "Enter") {
+                verifyPassword();
+            }
+        }
+
+        // Hàm xác minh mật khẩu
+        function verifyPassword() {
+            const inputVal = document.getElementById("pwd-input").value;
+            const errorMsg = document.getElementById("error-msg");
+
+            if (inputVal === "2105") {
+                // Ẩn màn hình mật khẩu, hiện màn hình hiển thị mã
+                document.getElementById("password-screen").style.display = "none";
+                document.getElementById("display-screen").style.display = "block";
+                
+                // Bắt đầu chạy trình hiển thị mã
+                chayHienThi();
+            } else {
+                errorMsg.innerText = "❌ Sai mật khẩu! Vui lòng thử lại.";
+                document.getElementById("pwd-input").value = "";
+                document.getElementById("pwd-input").focus();
+            }
+        }
+
+        // Hàm điều khiển hiển thị từng mã
+        function chayHienThi() {
+            const container = document.getElementById("container");
+
+            function hienThiTungMa() {
+                if (index < danhSachMa.length) {
+                    container.innerText = danhSachMa[index];
+                    index++;
+                } else {
+                    index = 0; // Quay lại từ đầu khi hiện hết (xóa dòng này nếu muốn dừng lại ở mã cuối)
+                }
+            }
+
+            // Chạy ngay lập tức mã đầu tiên
+            hienThiTungMa();
+
+            // Tự động đổi mã sau mỗi 1 giây (1000ms)
+            setInterval(hienThiTungMa, 1000);
+        }
+    </script>
+
+</body>
+</html>
