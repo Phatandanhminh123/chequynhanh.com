@@ -13,8 +13,10 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
         }
         /* Giao diện nhập mật khẩu */
         #password-screen {
@@ -64,18 +66,30 @@
         #display-screen {
             display: none; /* Ẩn đi lúc đầu */
             text-align: center;
+            width: 100%;
+            max-width: 400px;
         }
         #container {
-            font-size: 28px;
+            font-size: 24px;
             border: 2px solid #39ff14;
-            padding: 20px 50px;
+            padding: 20px;
             border-radius: 8px;
             background-color: #000;
-            min-height: 40px;
-            min-width: 220px;
-            text-align: center;
             box-shadow: 0 0 15px #39ff14;
             margin-top: 20px;
+            text-align: left; /* Căn lề trái để danh sách ngay ngắn */
+            max-height: 70vh;
+            overflow-y: auto; /* Tự động xuất hiện thanh cuộn nếu danh sách quá dài */
+        }
+        .code-item {
+            margin-bottom: 10px;
+            border-bottom: 1px dotted #333;
+            padding-bottom: 5px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -84,7 +98,7 @@
     <!-- MÀN HÌNH NHẬP MẬT KHẨU -->
     <div id="password-screen">
         <h2>HỆ THỐNG BẢO MẬT</h2>
-        <p style="color: #aaa;">Vui lòng nhập mã truy cập để xem dữ liệu</p>
+        <p style="color: #aaa;">Vui lòng nhập mã truy cập để giải mã dữ liệu</p>
         <input type="password" id="pwd-input" placeholder="Nhập mật khẩu..." onkeydown="checkEnter(event)">
         <button onclick="verifyPassword()">XÁC NHẬN</button>
         <div id="error-msg"></div>
@@ -92,18 +106,19 @@
 
     <!-- MÀN HÌNH HIỂN THỊ MÃ -->
     <div id="display-screen">
-        <h2 style="color: #fff; font-family: Arial, sans-serif;">Đang giải mã dữ liệu...</h2>
-        <div id="container">Sẵn sàng...</div>
+        <h2 style="color: #fff; font-family: Arial, sans-serif;">Dữ liệu đang được trích xuất...</h2>
+        <div id="container"></div>
     </div>
 
     <script>
-        // Danh sách mã bảo mật
+        // Danh sách mã bảo mật của bạn
         const danhSachMa = [
             "d9dsx89h8", "p9b67vikf", "e26c2ds16", "rb1d0v7b3", "t7gyjsndl",
             "0e9fupet8", "05ytr7lht", "l6hfi92ej", "qdpk7hk21", "s0t1peu5b"
         ];
 
         let index = 0;
+        let timer = null;
 
         // Hàm kiểm tra khi bấm phím Enter trong ô nhập
         function checkEnter(event) {
@@ -118,7 +133,7 @@
             const errorMsg = document.getElementById("error-msg");
 
             if (inputVal === "2105") {
-                // Ẩn màn hình mật khẩu, hiện màn hình hiển thị mã
+                // Ẩn màn hình nhập mật khẩu, hiện màn hình hiển thị mã
                 document.getElementById("password-screen").style.display = "none";
                 document.getElementById("display-screen").style.display = "block";
                 
@@ -131,24 +146,35 @@
             }
         }
 
-        // Hàm điều khiển hiển thị từng mã
+        // Hàm điều khiển hiển thị thêm từng mã sau mỗi 5 giây
         function chayHienThi() {
             const container = document.getElementById("container");
 
-            function hienThiTungMa() {
+            function hienThiMoi() {
                 if (index < danhSachMa.length) {
-                    container.innerText = danhSachMa[index];
+                    // Tạo một phần tử div mới cho mã tiếp theo
+                    const newDiv = document.createElement("div");
+                    newDiv.className = "code-item";
+                    newDiv.innerText = `${index + 1}. ${danhSachMa[index]}`;
+                    
+                    // Thêm vào vùng chứa (giữ nguyên các mã cũ)
+                    container.appendChild(newDiv);
+                    
+                    // Tự động cuộn xuống dưới cùng nếu danh sách quá dài
+                    container.scrollTop = container.scrollHeight;
+                    
                     index++;
                 } else {
-                    index = 0; // Quay lại từ đầu khi hiện hết (xóa dòng này nếu muốn dừng lại ở mã cuối)
+                    // Khi đã hiện hết toàn bộ mã thì dừng bộ đếm thời gian
+                    clearInterval(timer);
                 }
             }
 
-            // Chạy ngay lập tức mã đầu tiên
-            hienThiTungMa();
+            // Hiển thị ngay lập tức mã đầu tiên (mã số 1) sau khi mở khóa thành công
+            hienThiMoi();
 
-            // Tự động đổi mã sau mỗi 1 giây (1000ms)
-            setInterval(hienThiTungMa, 1000);
+            // Cứ mỗi 5000ms (5 giây) sẽ chạy hàm để hiện thêm mã tiếp theo
+            timer = setInterval(hienThiMoi, 5000);
         }
     </script>
 
